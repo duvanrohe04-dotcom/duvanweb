@@ -18,6 +18,7 @@ services:
       - PORT=${PORT:-5001}
       - SITE_NAME=${SITE_NAME:-Duvan Rodriguez}
       - SITE_URL=${SITE_URL:-https://duvanweb.com}
+      - DATABASE_URL=${DATABASE_URL}
     networks:
       - coolify
     restart: unless-stopped
