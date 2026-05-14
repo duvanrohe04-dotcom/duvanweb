@@ -1,0 +1,688 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- WHATSAPP FLOAT -->
+<a href="https://wa.me/573107480575" target="_blank" class="wa-float" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="toggleMobile()">✕</button>
+  <a href="#hero" onclick="toggleMobile()">Inicio</a>
+  <a href="#reasons" onclick="toggleMobile()">¿Por qué?</a>
+  <a href="#services" onclick="toggleMobile()">Servicios</a>
+  <a href="#process" onclick="toggleMobile()">Proceso</a>
+  <a href="#faq" onclick="toggleMobile()">FAQ</a>
+  <a href="https://wa.me/573107480575" target="_blank" style="color:var(--accent-cyan)">Contactar</a>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <div class="nav-logo">&lt;<span>DR</span>&gt;</div>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#reasons">¿Por qué?</a></li>
+    <li><a href="#services">Servicios</a></li>
+    <li><a href="#process">Proceso</a></li>
+    <li><a href="#testimonials">Clientes</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <button class="nav-cta" onclick="window.open('https://wa.me/573107480575','_blank')">Cotizar</button>
+  <button class="hamburger" onclick="toggleMobile()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- PUBLIC PAGE -->
+<div id="public-page">
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="particles-canvas"></canvas>
+  <div class="hero-content">
+    <div class="hero-logo">
+      <div class="hero-logo-ring"></div>
+      <div class="hero-logo-ring2"></div>
+      <div class="hero-logo-text">DR</div>
+    </div>
+    <div class="hero-code-deco">&lt; BIENVENIDO /&gt;</div>
+    <h1 class="hero-title">DUVAN RODRIGUEZ</h1>
+    <div class="hero-subtitle">Creador y Diseñador de Páginas Web</div>
+    <div class="hero-tagline"><span id="typewriter"></span></div>
+    <div class="hero-btns">
+      <a href="https://wa.me/573107480575?text=Hola%20Duvan%2C%20quiero%20una%20p%C3%A1gina%20web%20para%20mi%20negocio" target="_blank" class="btn-primary">QUIERO MI PÁGINA WEB</a>
+      <a href="#services" class="btn-secondary">Ver mi trabajo</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" data-target="120">0</span>
+        <span class="stat-label">Clientes Satisfechos</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="150">0</span>
+        <span class="stat-label">Proyectos Entregados</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num" data-target="5">0</span>
+        <span class="stat-label">Años de Experiencia</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REASONS -->
+<section id="reasons">
+  <div class="container">
+    <h2 class="section-title">¿Por qué tu negocio <span>NECESITA</span> una página web?</h2>
+    <div class="section-line"></div>
+    <p class="section-sub">En 2025, no tener presencia digital es invisible para millones de clientes potenciales</p>
+    <div class="reasons-grid">
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">🌍</div>
+        <div class="reason-title">Presencia 24/7 los 365 días</div>
+        <p class="reason-desc">Tu negocio trabaja mientras duermes. Un cliente puede encontrarte a las 3am desde cualquier parte del mundo.</p>
+        <div class="reason-stat">📊 El 97% busca negocios en internet antes de comprar</div>
+      </div>
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">📈</div>
+        <div class="reason-title">Credibilidad y confianza instantánea</div>
+        <p class="reason-desc">Los negocios sin página web pierden hasta el 75% de clientes potenciales que dudan de su legitimidad.</p>
+        <div class="reason-stat">📊 El 84% cree que tener web hace más creíble a un negocio</div>
+      </div>
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">💰</div>
+        <div class="reason-title">Multiplica tus ventas</div>
+        <p class="reason-desc">Una página web es tu vendedor número uno: nunca descansa, nunca se enferma y nunca pide aumento.</p>
+        <div class="reason-stat">📊 Los negocios con web venden en promedio un 40% más</div>
+      </div>
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">🎯</div>
+        <div class="reason-title">Llega a más clientes</div>
+        <p class="reason-desc">Expande tu mercado más allá de tu barrio o ciudad. Todo Colombia y el mundo puede ser tu cliente.</p>
+        <div class="reason-stat">📊 Colombia tiene +38 millones de usuarios de internet activos</div>
+      </div>
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">💬</div>
+        <div class="reason-title">Comunicación directa</div>
+        <p class="reason-desc">Chat en vivo, formularios de contacto, WhatsApp integrado. Nunca pierdas un cliente por no poder contactarte.</p>
+        <div class="reason-stat">📊 Respuesta instantánea = más conversiones</div>
+      </div>
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">📊</div>
+        <div class="reason-title">Conoce a tus clientes</div>
+        <p class="reason-desc">Analíticas en tiempo real: sabe cuántas personas te visitan, desde dónde y qué buscan. Decisiones inteligentes.</p>
+        <div class="reason-stat">📊 Datos reales para crecer tu negocio</div>
+      </div>
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">🏆</div>
+        <div class="reason-title">Supera a tu competencia</div>
+        <p class="reason-desc">Si tu competencia ya tiene web y tú no, estás perdiendo clientes ahora mismo. ¡Toma ventaja hoy!</p>
+        <div class="reason-stat">📊 Solo el 28% de negocios pequeños tiene web en Colombia</div>
+      </div>
+      <div class="reason-card fade-in-up">
+        <div class="reason-icon">💎</div>
+        <div class="reason-title">Imagen profesional premium</div>
+        <p class="reason-desc">Una web bien diseñada eleva la percepción de tu marca. Los clientes pagan más a quien se ve más profesional.</p>
+        <div class="reason-stat">📊 Una web de calidad puede subir tus precios hasta un 30%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section id="benefits">
+  <div class="container">
+    <h2 class="section-title">Beneficios de tener una <span>página web</span></h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Todo lo que ganas al invertir en tu presencia digital</p>
+    <div class="benefits-grid fade-in-up">
+      <div class="benefits-col">
+        <h3>🌐 PARA TU NEGOCIO</h3>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Ventas automáticas — catálogo y tienda online disponible 24/7</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Posicionamiento en Google (SEO) para atraer visitas orgánicas</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Integración completa con tus redes sociales</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Formularios de cotización automáticos que capturan leads</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Galería profesional de productos o servicios</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Testimonios y reseñas de clientes reales</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Blog para atraer más visitas y posicionarte como experto</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Mapa de ubicación integrado para llegar más fácil</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Botón de WhatsApp flotante en toda la página</span></div>
+        <div class="benefit-item"><span class="benefit-icon">✅</span><span class="benefit-text">Diseño adaptable a celular 100% responsive</span></div>
+      </div>
+      <div class="benefits-col">
+        <h3>⚡ AL TRABAJAR CONMIGO</h3>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Entrega rápida entre 5 y 10 días hábiles garantizados</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Diseño 100% personalizado — cero plantillas genéricas</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Precios accesibles especialmente para negocios colombianos</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Soporte técnico incluido después de la entrega</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Asesoría incluida para que aproveches tu web al máximo</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Orientación completa con dominio y hosting</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Revisiones ilimitadas hasta que quedes 100% satisfecho</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Comunicación directa por WhatsApp en todo momento</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Garantía de calidad y satisfacción del cliente</span></div>
+        <div class="benefit-item"><span class="benefit-icon">⚡</span><span class="benefit-text">Capacitación para que puedas gestionar tu web</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <h2 class="section-title">Planes y <span>Servicios</span></h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Elige el plan que más se adapta a tu negocio. Todos con diseño personalizado</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-card-inner">
+          <div class="service-front">
+            <div class="service-badge">BÁSICO</div>
+            <div class="service-title">PRESENCIA DIGITAL</div>
+            <div class="service-subtitle">Perfecto para comenzar</div>
+            <ul class="service-features">
+              <li>Página informativa 1 a 3 secciones</li>
+              <li>Diseño 100% responsive</li>
+              <li>Formulario de contacto</li>
+              <li>Botón WhatsApp integrado</li>
+              <li>Velocidad optimizada</li>
+              <li>Entrega 3–5 días</li>
+            </ul>
+          </div>
+          <div class="service-back">
+            <div class="service-badge">BÁSICO</div>
+            <div class="service-price">¡CONSULTAR!</div>
+            <p style="color:var(--text-secondary);margin-bottom:24px;font-size:.95rem;">Precio justo para tu negocio.<br>Primera consultoría GRATIS.</p>
+            <a href="https://wa.me/573107480575?text=Hola%20Duvan%2C%20me%20interesa%20el%20Plan%20B%C3%A1sico" target="_blank" class="btn-sm">Hablar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+      <div class="service-card featured">
+        <div class="service-card-inner">
+          <div class="service-front" style="border-color:rgba(0,207,255,.5);box-shadow:0 0 40px rgba(0,207,255,.1);">
+            <div class="service-badge" style="background:linear-gradient(135deg,#ff6b35,#ffaa00);">⭐ POPULAR</div>
+            <div class="service-title">NEGOCIO PODEROSO</div>
+            <div class="service-subtitle">La elección más popular</div>
+            <ul class="service-features">
+              <li>Hasta 6 secciones completas</li>
+              <li>Galería de productos/servicios</li>
+              <li>Blog integrado</li>
+              <li>SEO básico incluido</li>
+              <li>Redes sociales integradas</li>
+              <li>Dominio personalizado orientado</li>
+            </ul>
+          </div>
+          <div class="service-back" style="border-color:rgba(0,207,255,.5);">
+            <div class="service-badge" style="background:linear-gradient(135deg,#ff6b35,#ffaa00);">⭐ POPULAR</div>
+            <div class="service-price">¡CONSULTAR!</div>
+            <p style="color:var(--text-secondary);margin-bottom:24px;font-size:.95rem;">Incluye todo lo del plan básico y mucho más.</p>
+            <a href="https://wa.me/573107480575?text=Hola%20Duvan%2C%20me%20interesa%20el%20Plan%20Profesional" target="_blank" class="btn-sm">Hablar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+      <div class="service-card">
+        <div class="service-card-inner">
+          <div class="service-front">
+            <div class="service-badge" style="background:linear-gradient(135deg,#7c3aed,#1a6fff);">💎 PREMIUM</div>
+            <div class="service-title">MARCA ÉLITE</div>
+            <div class="service-subtitle">Para negocios ambiciosos</div>
+            <ul class="service-features">
+              <li>Página completa ilimitada</li>
+              <li>Tienda online / E-commerce</li>
+              <li>Panel de administración</li>
+              <li>SEO avanzado</li>
+              <li>Integración de pagos</li>
+              <li>Mantenimiento 3 meses</li>
+            </ul>
+          </div>
+          <div class="service-back">
+            <div class="service-badge" style="background:linear-gradient(135deg,#7c3aed,#1a6fff);">💎 PREMIUM</div>
+            <div class="service-price">¡CONSULTAR!</div>
+            <p style="color:var(--text-secondary);margin-bottom:24px;font-size:.95rem;">La solución más completa para crecer sin límites.</p>
+            <a href="https://wa.me/573107480575?text=Hola%20Duvan%2C%20me%20interesa%20el%20Plan%20Premium" target="_blank" class="btn-sm">Hablar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="comparison">
+  <div class="container">
+    <h2 class="section-title">Con web <span>VS</span> Sin web</h2>
+    <div class="section-line"></div>
+    <p class="section-sub">¿Realmente importa tener una página web? Los números no mienten</p>
+    <div class="table-wrap fade-in-up">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th style="background:rgba(255,255,255,.05);color:var(--text-secondary);">Aspecto</th>
+            <th class="with-web">✅ CON PÁGINA WEB</th>
+            <th class="without-web">❌ SIN PÁGINA WEB</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Visibilidad</td><td class="good">Todo internet te puede encontrar</td><td class="bad">Solo tu círculo cercano</td></tr>
+          <tr><td>Horario de ventas</td><td class="good">24 horas, 7 días a la semana</td><td class="bad">Solo mientras atiendes</td></tr>
+          <tr><td>Credibilidad</td><td class="good">Alta — imagen profesional</td><td class="bad">Baja — genera desconfianza</td></tr>
+          <tr><td>Alcance geográfico</td><td class="good">Colombia y el mundo entero</td><td class="bad">Solo tu barrio o ciudad</td></tr>
+          <tr><td>Captación de clientes</td><td class="good">Automática y continua</td><td class="bad">Solo por referidos</td></tr>
+          <tr><td>Competitividad</td><td class="good">Por encima de la competencia</td><td class="bad">Por debajo del mercado</td></tr>
+          <tr><td>Información al cliente</td><td class="good">Siempre disponible y actualizada</td><td class="bad">El cliente no puede consultarla</td></tr>
+          <tr><td>Costo de adquisición</td><td class="good">Bajo con SEO y contenido</td><td class="bad">Alto — solo publicidad pagada</td></tr>
+          <tr><td>Ventas promedio</td><td class="good">Hasta 40% más</td><td class="bad">Sin potencial de escalabilidad</td></tr>
+          <tr><td>Posición ante Google</td><td class="good">Aparece en búsquedas</td><td class="bad">Invisible para Google</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="container">
+    <h2 class="section-title">Mi Proceso de <span>Trabajo</span></h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Simple, transparente y orientado a resultados. Así funciona trabajar conmigo</p>
+    <div class="process-timeline">
+      <div class="process-step fade-in-up">
+        <div class="step-icon">📋</div>
+        <div class="step-num">PASO 01</div>
+        <div class="step-title">Consultoría</div>
+        <div class="step-desc">Entiendo tu negocio, objetivos y qué necesitas lograr</div>
+      </div>
+      <div class="process-step fade-in-up">
+        <div class="step-icon">🎨</div>
+        <div class="step-num">PASO 02</div>
+        <div class="step-title">Diseño</div>
+        <div class="step-desc">Creo la maqueta visual personalizada para tu marca</div>
+      </div>
+      <div class="process-step fade-in-up">
+        <div class="step-icon">💻</div>
+        <div class="step-num">PASO 03</div>
+        <div class="step-title">Desarrollo</div>
+        <div class="step-desc">Construyo tu página web con la mejor tecnología</div>
+      </div>
+      <div class="process-step fade-in-up">
+        <div class="step-icon">✅</div>
+        <div class="step-num">PASO 04</div>
+        <div class="step-title">Revisión</div>
+        <div class="step-desc">Tú apruebas cada cambio hasta quedar satisfecho</div>
+      </div>
+      <div class="process-step fade-in-up">
+        <div class="step-icon">🚀</div>
+        <div class="step-num">PASO 05</div>
+        <div class="step-title">Lanzamiento</div>
+        <div class="step-desc">Tu página va en vivo y empieza a trabajar para ti</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="container">
+    <h2 class="section-title">Lo que dicen mis <span>Clientes</span></h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Negocios colombianos que ya transformaron su presencia digital</p>
+    <div class="testimonials-grid">
+      <div class="testi-card fade-in-up">
+        <div class="testi-avatar">MC</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Desde que Duvan me hizo la página, mis reservas se duplicaron. Ahora recibo clientes de toda Bogotá y hasta de otras ciudades. La inversión se pagó sola en el primer mes."</p>
+        <div class="testi-name">María Camila Torres</div>
+        <div class="testi-biz">🍽️ Restaurante El Fogón — Bogotá</div>
+      </div>
+      <div class="testi-card fade-in-up">
+        <div class="testi-avatar">JA</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Mi peluquería ahora aparece en Google cuando la gente busca cortes de cabello cerca. Antes dependía solo del voz a voz. Duvan hizo un trabajo increíble, muy profesional y rápido."</p>
+        <div class="testi-name">Juan Andrés Mejía</div>
+        <div class="testi-biz">✂️ Barbería Style — Medellín</div>
+      </div>
+      <div class="testi-card fade-in-up">
+        <div class="testi-avatar">LP</div>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"Tengo mi tienda de ropa en línea funcionando perfectamente. Vendo a todo el país sin salir de mi casa. El panel es fácil de manejar y Duvan siempre está disponible cuando lo necesito."</p>
+        <div class="testi-name">Laura Patricia Gómez</div>
+        <div class="testi-biz">👗 Boutique LPG — Cali</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <h2 class="section-title">Preguntas <span>Frecuentes</span></h2>
+    <div class="section-line"></div>
+    <p class="section-sub">Resuelvo todas tus dudas antes de empezar</p>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Cuánto cuesta una página web? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>El precio varía según el tipo de proyecto y lo que necesitas. Manejo planes desde básicos hasta premium con e-commerce. Lo importante es que siempre busco ofrecer el mejor precio para negocios colombianos. ¡Escríbeme por WhatsApp y te hago una cotización personalizada gratis!</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Cuánto tiempo tarda en estar lista? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>Dependiendo del plan, entre 3 y 10 días hábiles. Los proyectos básicos pueden estar listos en 3 días, los profesionales en 7 días y los premium en 10 días. Siempre te doy un tiempo estimado al inicio del proyecto.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Necesito saber de tecnología para manejarla? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>¡Para nada! Diseño las páginas para que puedas gestionar el contenido de forma sencilla, sin conocimientos técnicos. Además, te incluyo una capacitación para que sepas cómo actualizar tu información cuando lo necesites.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Qué pasa si quiero hacer cambios después? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>Ofrezco soporte post-entrega. Pequeños cambios los hago con gusto después de la entrega. Para actualizaciones mayores tenemos tarifas muy accesibles. Siempre estaré disponible por WhatsApp para ayudarte.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿La página funciona en celular? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>¡Absolutamente sí! Todas mis páginas son 100% responsive, es decir, se adaptan perfectamente a celulares, tablets y computadores. En Colombia el 80% del tráfico web viene de celulares, así que esto es prioridad.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Me ayudas con el dominio y el hosting? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>Sí, te oriento paso a paso para conseguir tu dominio (ej: tunegocio.com) y hosting al mejor precio. Te explico dónde comprarlos, cómo configurarlos y me encargo de conectar todo. No tienes que hacerlo solo.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Puedo vender productos desde la página? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>¡Claro! El Plan Premium incluye tienda online con carrito de compras e integración de pasarelas de pago como PSE, Wompi, Nequi y tarjetas de crédito. Puedes vender tus productos a todo Colombia directamente desde tu web.</p></div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">¿Cómo me contacto contigo? <i class="fas fa-chevron-down faq-arrow"></i></div>
+        <div class="faq-a"><p>La forma más rápida es por WhatsApp al número 3107480575. Respondo todos los días en horario de 8am a 8pm. También puedes hacer clic en cualquier botón de la página y te llevaré directamente a una conversación.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section id="cta-final">
+  <canvas id="cta-canvas"></canvas>
+  <div class="container cta-content">
+    <h2 class="cta-title">¿Listo para llevar tu negocio<br>al <span style="color:var(--accent-cyan)">siguiente nivel</span>?</h2>
+    <p class="cta-sub">Primera consultoría GRATIS. Sin compromiso. Sin letra pequeña.</p>
+    <a href="https://wa.me/573107480575?text=Hola%20Duvan%2C%20quiero%20una%20p%C3%A1gina%20web%20para%20mi%20negocio" target="_blank" class="btn-huge">HABLAR CON DUVAN AHORA</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">&lt; DR /&gt;</div>
+        <p>Transformando negocios en marcas digitales poderosas. Diseño web profesional para empresas y emprendedores colombianos.</p>
+        <div class="social-links">
+          <a href="#" class="social-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+          <a href="#" class="social-link" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="#" class="social-link" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+          <a href="https://wa.me/573107480575" target="_blank" class="social-link" style="color:#25d366" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>NAVEGACIÓN</h4>
+        <ul>
+          <li><a href="#hero">Inicio</a></li>
+          <li><a href="#reasons">¿Por qué una web?</a></li>
+          <li><a href="#benefits">Beneficios</a></li>
+          <li><a href="#services">Servicios</a></li>
+          <li><a href="#process">Proceso</a></li>
+          <li><a href="#testimonials">Testimonios</a></li>
+          <li><a href="#faq">Preguntas Frecuentes</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>CONTACTO</h4>
+        <ul>
+          <li><a href="https://wa.me/573107480575" target="_blank"><i class="fab fa-whatsapp"></i> 3107480575</a></li>
+          <li><a href="#services">Ver planes</a></li>
+          <li><a href="#cta-final">Cotizar gratis</a></li>
+        </ul>
+        <div style="margin-top:20px;padding:16px;background:rgba(0,207,255,.08);border:1px solid rgba(0,207,255,.2);border-radius:10px;">
+          <div style="color:var(--accent-cyan);font-weight:700;font-size:.9rem;margin-bottom:4px;">📍 Colombia</div>
+          <div style="color:var(--text-secondary);font-size:.85rem;">Atención: Lun – Sáb<br>8:00am – 8:00pm</div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Duvan Rodriguez. Todos los derechos reservados.</span>
+      <span style="color:var(--text-secondary);font-size:.85rem;">Transformando negocios en marcas digitales</span>
+      <button class="secret-btn" onclick="showLogin()" title="Admin">◈</button>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /public-page -->
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">&lt; DR /&gt;</div>
+    <div class="login-sub">PANEL DE ADMINISTRACIÓN</div>
+    <input class="login-input" type="text" id="loginUser" placeholder="Usuario" autocomplete="off">
+    <input class="login-input" type="password" id="loginPass" placeholder="Contraseña">
+    <button class="login-btn" onclick="doLogin()">INGRESAR</button>
+    <div class="login-err" id="loginErr">Credenciales incorrectas</div>
+    <button class="login-back" onclick="hideLogin()">← Volver a la página</button>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="admin-panel">
+  <div class="admin-sidebar">
+    <div class="admin-logo">&lt;DR/&gt;<small>ADMIN PANEL</small></div>
+    <div class="admin-nav-item active" onclick="showAdminSection('dashboard',this)"><i class="fas fa-chart-bar"></i><span>Dashboard</span></div>
+    <div class="admin-nav-item" onclick="showAdminSection('clients',this)"><i class="fas fa-users"></i><span>Clientes</span></div>
+    <div class="admin-nav-item" onclick="showAdminSection('projects',this)"><i class="fas fa-folder"></i><span>Proyectos</span></div>
+    <div class="admin-nav-item" onclick="showAdminSection('messages',this)"><i class="fas fa-comment-dots"></i><span>Mensajes</span></div>
+    <div class="admin-nav-item" onclick="showAdminSection('quotes',this)"><i class="fas fa-file-invoice"></i><span>Cotizaciones</span></div>
+    <div class="admin-nav-item" onclick="showAdminSection('portfolio',this)"><i class="fas fa-images"></i><span>Portafolio</span></div>
+    <div class="admin-nav-item" onclick="showAdminSection('settings',this)"><i class="fas fa-cog"></i><span>Configuración</span></div>
+    <div class="admin-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i><span>Cerrar sesión</span></div>
+  </div>
+  <div class="admin-main">
+
+    <!-- DASHBOARD -->
+    <div class="admin-section active" id="section-dashboard">
+      <div class="admin-header">
+        <div class="admin-title">📊 Dashboard</div>
+        <div style="color:var(--text-secondary);font-size:.9rem;" id="dashboard-date"></div>
+      </div>
+      <div class="admin-stat-cards">
+        <div class="admin-stat"><span class="admin-stat-num" style="color:var(--accent-cyan);" id="stat-active">0</span><div class="admin-stat-label">Proyectos Activos</div></div>
+        <div class="admin-stat"><span class="admin-stat-num" style="color:var(--success);" id="stat-clients">0</span><div class="admin-stat-label">Clientes Totales</div></div>
+        <div class="admin-stat"><span class="admin-stat-num" style="color:var(--warning);" id="stat-messages">0</span><div class="admin-stat-label">Mensajes Nuevos</div></div>
+        <div class="admin-stat"><span class="admin-stat-num" style="color:var(--accent-blue);" id="stat-income">$0</span><div class="admin-stat-label">Ingresos del Mes</div></div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:.95rem;margin-bottom:16px;color:var(--accent-cyan);">Ingreso mensual (editar)</h3>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <input class="admin-input" style="margin:0;max-width:220px;flex:1;" type="number" id="incomeInput" placeholder="Ingreso en COP" oninput="updateIncome(this.value)">
+          <span style="color:var(--text-secondary);font-size:.9rem;">COP</span>
+        </div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:.95rem;margin-bottom:16px;color:var(--accent-cyan);">Proyectos recientes</h3>
+        <div id="dashboard-projects-list"></div>
+      </div>
+    </div>
+
+    <!-- CLIENTS -->
+    <div class="admin-section" id="section-clients">
+      <div class="admin-header">
+        <div class="admin-title">👥 Gestión de Clientes</div>
+        <button class="btn-sm" onclick="openModal('client-modal')">+ Agregar cliente</button>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+        <input class="search-bar" placeholder="Buscar cliente..." oninput="filterClients(this.value)">
+        <select class="admin-select" style="width:auto;margin:0;" onchange="filterClientsByStatus(this.value)">
+          <option value="">Todos los estados</option>
+          <option value="En proceso">En proceso</option>
+          <option value="Entregado">Entregado</option>
+          <option value="Pendiente pago">Pendiente pago</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;">
+        <table class="admin-table">
+          <thead><tr><th>Nombre</th><th>Negocio</th><th>WhatsApp</th><th>Servicio</th><th>Estado</th><th>Fecha</th><th>Acciones</th></tr></thead>
+          <tbody id="clients-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="admin-section" id="section-projects">
+      <div class="admin-header">
+        <div class="admin-title">📁 Proyectos</div>
+        <button class="btn-sm" onclick="openModal('project-modal')">+ Nuevo proyecto</button>
+      </div>
+      <div id="projects-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;"></div>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="admin-section" id="section-messages">
+      <div class="admin-header">
+        <div class="admin-title">💬 Mensajes / Leads</div>
+      </div>
+      <div style="overflow-x:auto;border:1px solid var(--border);border-radius:12px;">
+        <table class="admin-table">
+          <thead><tr><th>Nombre</th><th>WhatsApp</th><th>Mensaje</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody id="messages-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- QUOTES -->
+    <div class="admin-section" id="section-quotes">
+      <div class="admin-header"><div class="admin-title">💰 Generador de Cotizaciones</div></div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:600px;">
+        <input class="admin-input" id="q-name" placeholder="Nombre del cliente">
+        <input class="admin-input" id="q-business" placeholder="Nombre del negocio">
+        <select class="admin-select" id="q-plan">
+          <option value="Básico – Presencia Digital">Básico – Presencia Digital</option>
+          <option value="Profesional – Negocio Poderoso">Profesional – Negocio Poderoso</option>
+          <option value="Premium – Marca Élite">Premium – Marca Élite</option>
+        </select>
+        <input class="admin-input" id="q-extras" placeholder="Extras adicionales (ej: blog, tienda, SEO avanzado...)">
+        <input class="admin-input" id="q-price" placeholder="Precio acordado (COP)">
+        <input class="admin-input" id="q-phone" placeholder="WhatsApp del cliente">
+        <button class="btn-sm" onclick="generateQuote()" style="width:100%;padding:14px;">Generar Cotización</button>
+        <div class="quote-output" id="quote-output"></div>
+        <div style="display:none;gap:12px;margin-top:12px;" id="quote-actions">
+          <button class="btn-sm" onclick="copyQuote()"><i class="fas fa-copy"></i> Copiar</button>
+          <button class="btn-sm btn-success" onclick="shareQuoteWA()"><i class="fab fa-whatsapp"></i> Compartir por WA</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PORTFOLIO -->
+    <div class="admin-section" id="section-portfolio">
+      <div class="admin-header">
+        <div class="admin-title">📝 Portafolio</div>
+        <button class="btn-sm" onclick="openModal('portfolio-modal')">+ Agregar proyecto</button>
+      </div>
+      <div class="portfolio-grid" id="portfolio-grid"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="admin-section" id="section-settings">
+      <div class="admin-header"><div class="admin-title">⚙️ Configuración</div></div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:28px;max-width:600px;">
+        <div class="config-row">
+          <span class="config-label">Número de WhatsApp</span>
+          <input class="admin-input" style="width:200px;margin:0;" id="cfg-wa" value="3107480575">
+        </div>
+        <div class="config-row">
+          <span class="config-label">Tagline del hero</span>
+          <input class="admin-input" style="width:260px;margin:0;" id="cfg-tagline" value="Transformo negocios en marcas digitales poderosas">
+        </div>
+        <div class="config-row">
+          <span class="config-label">Sección Razones</span>
+          <div class="toggle on" id="tog-reasons" onclick="toggleSection('tog-reasons')"></div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Sección Servicios</span>
+          <div class="toggle on" id="tog-services" onclick="toggleSection('tog-services')"></div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Sección Testimonios</span>
+          <div class="toggle on" id="tog-testi" onclick="toggleSection('tog-testi')"></div>
+        </div>
+        <div class="config-row">
+          <span class="config-label">Sección FAQ</span>
+          <div class="toggle on" id="tog-faq" onclick="toggleSection('tog-faq')"></div>
+        </div>
+        <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
+          <h4 style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--accent-cyan);margin-bottom:16px;">Cambiar contraseña</h4>
+          <input class="admin-input" type="password" id="cfg-pass1" placeholder="Nueva contraseña">
+          <input class="admin-input" type="password" id="cfg-pass2" placeholder="Confirmar contraseña">
+        </div>
+        <button class="btn-sm" style="width:100%;padding:14px;margin-top:8px;" onclick="saveSettings()">Guardar configuración</button>
+        <div id="cfg-msg" style="color:var(--success);font-size:.9rem;margin-top:8px;display:none;">✅ Configuración guardada</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="client-modal">
+  <div class="modal-box">
+    <div class="modal-title">Agregar / Editar Cliente</div>
+    <input class="admin-input" id="cm-name" placeholder="Nombre completo">
+    <input class="admin-input" id="cm-biz" placeholder="Nombre del negocio">
+    <input class="admin-input" id="cm-phone" placeholder="WhatsApp">
+    <select class="admin-select" id="cm-service">
+      <option>Básico – Presencia Digital</option>
+      <option>Profesional – Negocio Poderoso</option>
+      <option>Premium – Marca Élite</option>
+    </select>
+    <select class="admin-select" id="cm-status">
+      <option>En proceso</option>
+      <option>Entregado</option>
+      <option>Pendiente pago</option>
+    </select>
+    <input class="admin-input" id="cm-date" type="date">
+    <input type="hidden" id="cm-edit-id" value="">
+    <div class="modal-actions">
+      <button class="btn-sm btn-danger" onclick="closeModal('client-modal')">Cancelar</button>
+      <button class="btn-sm" onclick="saveClient()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="project-modal">
+  <div class="modal-box">
+    <div class="modal-title">Agregar / Editar Proyecto</div>
+    <input class="admin-input" id="pm-client" placeholder="Nombre del cliente">
+    <input class="admin-input" id="pm-type" placeholder="Tipo de página (ej: Restaurante, Tienda)">
+    <input class="admin-input" id="pm-start" type="date" placeholder="Fecha inicio">
+    <input class="admin-input" id="pm-end" type="date" placeholder="Fecha entrega">
+    <select class="admin-select" id="pm-status">
+      <option>Diseño</option>
+      <option>Desarrollo</option>
+      <option>Revisión</option>
+      <option>Entregado</option>
+    </select>
+    <input class="admin-input" id="pm-progress" type="number" placeholder="Progreso % (0-100)" min="0" max="100">
+    <input type="hidden" id="pm-edit-id" value="">
+    <div class="modal-actions">
+      <button class="btn-sm btn-danger" onclick="closeModal('project-modal')">Cancelar</button>
+      <button class="btn-sm" onclick="saveProject()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="portfolio-modal">
+  <div class="modal-box">
+    <div class="modal-title">Agregar proyecto al portafolio</div>
+    <input class="admin-input" id="pf-title" placeholder="Título del proyecto">
+    <input class="admin-input" id="pf-desc" placeholder="Descripción breve">
+    <input class="admin-input" id="pf-url" placeholder="URL de imagen (https://...)">
+    <input class="admin-input" id="pf-link" placeholder="Enlace al sitio (https://...)">
+    <div class="modal-actions">
+      <button class="btn-sm btn-danger" onclick="closeModal('portfolio-modal')">Cancelar</button>
+      <button class="btn-sm" onclick="savePortfolio()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

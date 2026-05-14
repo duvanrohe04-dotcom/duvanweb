@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: duvan_web
+    expose:
+      - "${PORT:-5001}"
+    ports:
+      - "${PORT:-5001}:${PORT:-5001}"
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    environment:
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - FLASK_DEBUG=${FLASK_DEBUG:-0}
+      - SECRET_KEY=${SECRET_KEY}
+      - PORT=${PORT:-5001}
+      - SITE_NAME=${SITE_NAME:-Duvan Rodriguez}
+      - SITE_URL=${SITE_URL:-https://duvanweb.com}
+    networks:
+      - coolify
+    restart: unless-stopped
+
+networks:
+  coolify:
+    external: true

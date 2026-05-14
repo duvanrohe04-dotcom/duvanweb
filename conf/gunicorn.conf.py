@@ -1,0 +1,9 @@
+import os
+port = os.getenv('PORT', '5001')
+bind = f'0.0.0.0:{port}'
+workers = 2
+threads = 2
+timeout = 120
+accesslog = '-'
+errorlog = '-'
+loglevel = 'info'
