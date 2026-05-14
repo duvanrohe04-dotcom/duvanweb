@@ -8,9 +8,8 @@ services:
       - "${PORT:-5001}"
     ports:
       - "${PORT:-5001}:${PORT:-5001}"
-    volumes:
-      - .:/app
-      - /app/__pycache__
+    # El código va dentro de la imagen Docker (COPY . .).
+    # Sin bind mount para evitar que Coolify monte código viejo.
     environment:
       - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
