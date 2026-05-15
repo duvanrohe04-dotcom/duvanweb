@@ -8,8 +8,9 @@ main_bp = Blueprint('main', __name__)
 @main_bp.route('/')
 def index():
     try:
-        # Record visit
-        visit = Visit(ip=request.remote_addr, user_agent=request.headers.get('User-Agent'))
+        visit = Visit()
+        visit.ip = request.remote_addr
+        visit.user_agent = request.headers.get('User-Agent')
         db.session.add(visit)
         db.session.commit()
     except Exception as e:
@@ -31,8 +32,7 @@ def get_init_data():
     settings_dict = {s.key: s.value for s in settings}
     
     # Visit Stats
-    total_visits = Visit.query.count()
-    today_visits = Visit.query.filter(Visit.timestamp >= datetime.utcnow() - timedelta(hours=24)).count()
+    stats = get_stats()
     
     return jsonify({
         'clients': [{ 'id': c.id, 'name': c.name, 'biz': c.biz, 'phone': c.phone, 'service': c.service, 'status': c.status, 'date': c.date } for c in clients],
@@ -41,11 +41,50 @@ def get_init_data():
         'portfolio': [{ 'id': p.id, 'title': p.title, 'desc': p.desc, 'url': p.url, 'link': p.link } for p in portfolio],
         'reviews': [{ 'id': r.id, 'initials': r.initials, 'stars': r.stars, 'name': r.name, 'biz': r.biz, 'text': r.text } for r in reviews],
         'settings': settings_dict,
-        'stats': {
-            'total_visits': total_visits,
-            'today_visits': today_visits
-        }
+        'stats': stats
     })
+
+def get_stats():
+    try:
+        total = Visit.query.count()
+        # Colombia is UTC-5
+        from datetime import timedelta
+        now_col = datetime.utcnow() - timedelta(hours=5)
+        today_start_col = now_col.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # We compare stored UTC timestamps with the calculated UTC equivalent of Colombia's midnight
+        # Colombia 00:00 is UTC 05:00
+        today_start_utc = today_start_col + timedelta(hours=5)
+        today = Visit.query.filter(Visit.timestamp >= today_start_utc).count()
+        
+        # Breakdown by device (last 100 visits)
+        all_visits = Visit.query.order_by(Visit.timestamp.desc()).limit(100).all()
+        mobile = 0
+        desktop = 0
+        for v in all_visits:
+            ua = (v.user_agent or '').lower()
+            if 'mobile' in ua or 'android' in ua or 'iphone' in ua:
+                mobile += 1
+            else:
+                desktop += 1
+        
+        recent = []
+        for v in all_visits[:10]:
+            recent.append({
+                'ip': v.ip,
+                'ua': v.user_agent,
+                'time': v.timestamp.strftime('%H:%M:%S')
+            })
+
+        return {
+            'total_visits': total, 
+            'today_visits': today,
+            'device_stats': {'mobile': mobile, 'desktop': desktop},
+            'recent_visits': recent
+        }
+    except Exception as e:
+        print(f"Error getting stats: {e}")
+        return {'total_visits': 0, 'today_visits': 0, 'device_stats': {'mobile': 0, 'desktop': 0}, 'recent_visits': []}
 
 @main_bp.route('/api/clients', methods=['POST'])
 def save_client():
@@ -54,7 +93,8 @@ def save_client():
     if client_id:
         client = Client.query.get(client_id)
         if not client:
-            client = Client(id=client_id)
+            client = Client()
+            client.id = client_id
             db.session.add(client)
     else:
         client = Client()
@@ -85,7 +125,8 @@ def save_project():
     if project_id:
         project = Project.query.get(project_id)
         if not project:
-            project = Project(id=project_id)
+            project = Project()
+            project.id = project_id
             db.session.add(project)
     else:
         project = Project()
@@ -116,7 +157,8 @@ def save_message():
     if msg_id:
         msg = Message.query.get(msg_id)
         if not msg:
-            msg = Message(id=msg_id)
+            msg = Message()
+            msg.id = msg_id
             db.session.add(msg)
     else:
         msg = Message()
@@ -145,7 +187,8 @@ def save_portfolio():
     if p_id:
         p = PortfolioItem.query.get(p_id)
         if not p:
-            p = PortfolioItem(id=p_id)
+            p = PortfolioItem()
+            p.id = p_id
             db.session.add(p)
     else:
         p = PortfolioItem()
@@ -174,7 +217,8 @@ def save_review():
     if r_id:
         r = PublicReview.query.get(r_id)
         if not r:
-            r = PublicReview(id=r_id)
+            r = PublicReview()
+            r.id = r_id
             db.session.add(r)
     else:
         r = PublicReview()
@@ -215,7 +259,9 @@ def save_settings():
         if setting:
             setting.value = str(value)
         else:
-            setting = Setting(key=key, value=str(value))
+            setting = Setting()
+            setting.key = key
+            setting.value = str(value)
             db.session.add(setting)
     db.session.commit()
     return jsonify({'success': True})

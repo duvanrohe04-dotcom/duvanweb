@@ -1,5 +1,5 @@
 /* Service worker: no servir JS/CSS obsoleto desde caché (causa texto viejo y lógica antigua). */
-const CACHE = 'dr-web-v8';
+const CACHE = 'dr-web-v8.1';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(

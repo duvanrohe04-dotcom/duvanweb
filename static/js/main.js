@@ -11,19 +11,65 @@ let appData = {
 };
 
 async function api(url, method = 'GET', body = null) {
-  const options = {
-    method,
-    headers: { 'Content-Type': 'application/json' }
-  };
-  if (body) options.body = JSON.stringify(body);
-  const res = await fetch(url, options);
-  return res.json();
+  try {
+    const options = {
+      method,
+      headers: { 'Content-Type': 'application/json' }
+    };
+    if (body) options.body = JSON.stringify(body);
+    const res = await fetch(url, options);
+    
+    if (!res.ok) {
+      const errorText = await res.text().catch(() => 'No error detail');
+      console.error(`Server Error (${res.status}):`, errorText);
+      // Solo mostramos notificación si no es el inicio silencioso o si es un error grave
+      throw new Error(`Servidor respondió con error ${res.status}`);
+    }
+    
+    const contentType = res.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('El servidor no respondió con JSON válido');
+    }
+    
+    return await res.json();
+  } catch (e) {
+    console.error('API Error:', e);
+    // Mensaje más específico para el usuario
+    const msg = e.message.includes('fetch') ? 'No se pudo conectar con el servidor (Offline)' : e.message;
+    showNotif(msg, 'error');
+    return { success: false, error: e.message };
+  }
 }
 
 async function refreshData() {
   const data = await api('/api/init');
-  appData = data;
-  return data;
+  if (data && data.success !== false) {
+    appData = data;
+    appData.initLoaded = true;
+    return data;
+  }
+  appData.initFailed = true;
+  return null;
+}
+
+// NOTIFICATIONS
+function showNotif(msg, type = 'success') {
+  let container = document.querySelector('.notif-container');
+  if(!container){
+    container = document.createElement('div');
+    container.className = 'notif-container';
+    document.body.appendChild(container);
+  }
+  const n = document.createElement('div');
+  const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-triangle' : 'fa-info-circle';
+  n.className = `notif notif-${type}`;
+  n.innerHTML = `<i class="fas ${icon} notif-icon"></i><span>${msg}</span>`;
+  container.appendChild(n);
+  setTimeout(() => n.classList.add('active'), 10);
+  setTimeout(() => {
+    n.classList.remove('active');
+    setTimeout(() => n.remove(), 400);
+  }, 4000);
 }
 
 // ══════════════════════════════════════
@@ -32,48 +78,80 @@ async function refreshData() {
 // ══════════════════════════════════════
 (function(){
   const canvas = document.getElementById('particles-canvas');
-  if(!canvas)return;
-  const ctx = canvas.getContext('2d');
-  let particles = [];
-  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
-  resize();
-  window.addEventListener('resize',resize);
-  class Particle{
-    constructor(){this.reset();}
-    reset(){
-      this.x=Math.random()*canvas.width;
-      this.y=Math.random()*canvas.height;
-      this.size=Math.random()*2+.5;
-      this.speedX=(Math.random()-.5)*.6;
-      this.speedY=-Math.random()*.8-.2;
-      this.opacity=Math.random()*.7+.1;
-      this.char=Math.random()>.5?(Math.random()>.5?'<':'>'):String.fromCharCode(Math.floor(Math.random()*26)+65);
-      this.isChar=Math.random()>.6;
-    }
-    update(){
-      this.x+=this.speedX;this.y+=this.speedY;
-      if(this.y<-20||this.x<-20||this.x>canvas.width+20)this.reset();
-    }
-    draw(){
-      ctx.globalAlpha=this.opacity;
-      if(this.isChar){
-        ctx.fillStyle='#00cfff';ctx.font=`${this.size*6}px 'Orbitron',monospace`;
-        ctx.fillText(this.char,this.x,this.y);
-      } else {
-        ctx.fillStyle='rgba(0,207,255,0.8)';ctx.beginPath();
-        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();
-      }
-    }
+  if(!canvas) return;
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  // GRID FLOOR (INFINITE LOOK)
+  const gridCount = 2;
+  const grids = [];
+  for(let i=0; i<gridCount; i++){
+    const grid = new THREE.GridHelper(100, 40, 0x1a6fff, 0x0a0a0f);
+    grid.position.y = -5;
+    grid.position.z = -i * 100;
+    scene.add(grid);
+    grids.push(grid);
   }
-  for(let i=0;i<90;i++)particles.push(new Particle());
-  function animate(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.globalAlpha=0.03;ctx.strokeStyle='#00cfff';ctx.lineWidth=1;
-    for(let x=0;x<canvas.width;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
-    for(let y=0;y<canvas.height;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
-    particles.forEach(p=>{p.update();p.draw();});
+
+  // PARTICLES
+  const pCount = 800;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(pCount * 3);
+  const pVel = [];
+  for(let i=0; i<pCount*3; i++){ 
+    pPos[i] = (Math.random() - 0.5) * 60; 
+    pVel.push((Math.random() - 0.5) * 0.02);
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  const pMat = new THREE.PointsMaterial({ color: 0x00cfff, size: 0.1, transparent: true, opacity: 0.7, blending: THREE.AdditiveBlending });
+  const points = new THREE.Points(pGeo, pMat);
+  scene.add(points);
+
+  camera.position.z = 15;
+  camera.position.y = 2;
+
+  // PARALLAX
+  let mouseX = 0, mouseY = 0;
+  window.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX - window.innerWidth / 2) / 100;
+    mouseY = (e.clientY - window.innerHeight / 2) / 100;
+  });
+
+  function animate() {
     requestAnimationFrame(animate);
+    
+    // Smooth camera movement
+    camera.position.x += (mouseX - camera.position.x) * 0.05;
+    camera.position.y += (-mouseY + 2 - camera.position.y) * 0.05;
+    camera.lookAt(new THREE.Vector3(0, 0, -20));
+
+    // Move grids for infinite effect
+    grids.forEach(g => {
+      g.position.z += 0.2;
+      if(g.position.z > 100) g.position.z = -100;
+    });
+
+    // Animate particles
+    const positions = points.geometry.attributes.position.array;
+    for(let i=0; i<pCount; i++){
+      positions[i*3 + 2] += 0.05;
+      if(positions[i*3 + 2] > 20) positions[i*3 + 2] = -40;
+    }
+    points.geometry.attributes.position.needsUpdate = true;
+
+    renderer.render(scene, camera);
   }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
   animate();
 })();
 
@@ -110,18 +188,42 @@ async function refreshData() {
     const phrases=[saved.trim()||'Tu pagina web profesional lista en solo dias','Clientes nuevos buscandote en Google 24/7','Diseno a medida para tu negocio colombiano','Dominio y hosting incluidos sin tecnicismos'];
     let pi=0,ci=0,del=false;
     function type(){
-      const current=phrases[pi];
-      if(!del){el.textContent=current.substring(0,ci+1);ci++;}
-      else{el.textContent=current.substring(0,ci-1);ci--;}
-      if(!del&&ci===current.length){del=true;setTimeout(type,2200);return;}
-      if(del&&ci===0){del=false;pi=(pi+1)%phrases.length;}
-      setTimeout(type,del?50:80);
+      const current = phrases[pi] || '';
+      if(!current) {
+        pi = (pi + 1) % phrases.length;
+        setTimeout(type, 100);
+        return;
+      }
+      
+      if(!del){
+        el.textContent = current.substring(0, ci + 1);
+        ci++;
+      } else {
+        el.textContent = current.substring(0, ci - 1);
+        ci--;
+      }
+
+      if(!del && ci === current.length){
+        del = true;
+        setTimeout(type, 2500); // Wait at end
+        return;
+      }
+      if(del && ci === 0){
+        del = false;
+        pi = (pi + 1) % phrases.length;
+        setTimeout(type, 500); // Wait at beginning
+        return;
+      }
+      setTimeout(type, del ? 40 : 70);
     }
     type();
   }
-  // Wait for data
+  // Wait for data or failure
   const check = setInterval(()=>{
-    if(appData.settings.dr_tagline !== undefined){ clearInterval(check); startTypewriter(); }
+    if(appData.initLoaded || appData.initFailed){ 
+      clearInterval(check); 
+      startTypewriter(); 
+    }
   }, 100);
 })();
 
@@ -201,6 +303,11 @@ function doLogin(){
     document.getElementById('loginErr').style.display='block';
   }
 }
+function showLogin(){
+  document.getElementById('login-screen').classList.add('active');
+  document.getElementById('public-page').style.display='none';
+  document.getElementById('navbar').style.display='none';
+}
 document.addEventListener('DOMContentLoaded',()=>{
   const lp=document.getElementById('loginPass');
   if(lp)lp.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
@@ -264,41 +371,55 @@ function renderPublicTestimonials(){
 function applyWhatsAppPhone(){
   const phone=(appData.settings.dr_wa || '3107480575').replace(/\D/g,'');
   document.querySelectorAll('a[href*="wa.me"]').forEach(a=>{
-    try{
-      const u=new URL(a.href);
-      if(u.hostname!=='wa.me')return;
-      const path='/57'+phone;
-      a.href='https://wa.me'+path+u.search+u.hash;
-    }catch(e){a.href='https://wa.me/57'+phone;}
+    a.href='https://wa.me/57'+phone;
   });
   const fp=document.getElementById('footer-phone-display');
   if(fp)fp.textContent=phone.length>=10?phone.replace(/(\d{3})(\d{3})(\d+)/,'$1 $2 $3'):phone;
 }
 
 function applySocialAndFooter(){
-  function normalizeInstagramUrl(raw){
-    const t=(raw||'').trim();
-    if(!t)return'';
-    if(/^https?:\/\//i.test(t))return t;
-    const u=t.replace(/^@/,'').replace(/^\//,'').replace(/^instagram\.com\/?/i,'');
-    if(!u)return'';
-    return'https://www.instagram.com/'+u.trim();
+  function normIg(v){
+    let t = (v || '').trim(); if (!t) return '';
+    if(/^https?:\/\//i.test(t)) return t;
+    t = t.replace(/^(https?:\/\/)?(www\.)?instagram\.com/i, '').replace(/[@\/\s]/g, '');
+    return t ? 'https://www.instagram.com/' + t : '';
   }
-  function normalizeTikTokUrl(raw){
-    const t=(raw||'').trim();
-    if(!t)return'';
-    if(/^https?:\/\//i.test(t))return t;
-    let u=t.replace(/^@/,'').replace(/^\//,'');
-    if(/^tiktok\.com\//i.test(u))return'https://www.'+u;
-    u=u.replace(/^@/,'');
-    return'https://www.tiktok.com/@'+u;
+  function normTt(v){
+    let t = (v || '').trim(); if (!t) return '';
+    if(/^https?:\/\//i.test(t)) return t;
+    t = t.replace(/^(https?:\/\/)?(www\.)?tiktok\.com/i, '').replace(/[@\/\s]/g, '');
+    return t ? 'https://tiktok.com/@' + t + '?_t=1' : '';
   }
-  const ig=normalizeInstagramUrl(appData.settings.dr_social_ig || '');
-  const tt=normalizeTikTokUrl(appData.settings.dr_social_tt || '');
+  const ig=normIg(appData.settings.dr_social_ig || '');
+  const tt=normTt(appData.settings.dr_social_tt || '');
   const aig=document.getElementById('footer-social-ig');
   const att=document.getElementById('footer-social-tt');
-  if(aig){aig.href=ig||'#';aig.setAttribute('rel','noopener noreferrer');if(ig)aig.removeAttribute('aria-disabled');else aig.setAttribute('aria-disabled','true');}
-  if(att){att.href=tt||'#';if(tt)att.removeAttribute('aria-disabled');else att.setAttribute('aria-disabled','true');}
+  if(aig){
+    aig.href=ig||'javascript:void(0)';
+    aig.setAttribute('rel','noopener noreferrer');
+    if(!ig){
+      aig.setAttribute('aria-disabled','true');
+      aig.style.opacity = '0.3';
+      aig.onclick = (e) => { e.preventDefault(); showNotif('Instagram no configurado', 'info'); };
+    } else {
+      aig.removeAttribute('aria-disabled');
+      aig.style.opacity = '1';
+      aig.onclick = null;
+    }
+  }
+  if(att){
+    att.href=tt||'javascript:void(0)';
+    att.setAttribute('rel','noopener noreferrer');
+    if(!tt){
+      att.setAttribute('aria-disabled','true');
+      att.style.opacity = '0.3';
+      att.onclick = (e) => { e.preventDefault(); showNotif('TikTok no configurado', 'info'); };
+    } else {
+      att.removeAttribute('aria-disabled');
+      att.style.opacity = '1';
+      att.onclick = null;
+    }
+  }
   const def1='Tu página web lista en días: dominio y hosting incluidos, diseño profesional adaptado a tu negocio, y una tienda o catálogo digital abierto 24/7 para que tus clientes te encuentren desde cualquier lugar. Sin complicaciones técnicas y con soporte directo por WhatsApp cuando lo necesites.';
   const def2='Página web lista en 3–10 días · Dominio y hosting incluidos · Soporte por WhatsApp · Sin conocimiento técnico necesario';
   const p1=appData.settings.dr_footer_1;
@@ -314,14 +435,35 @@ function initServiceCardFlip(){
     card.setAttribute('role','button');
     card.setAttribute('tabindex','0');
     card.setAttribute('aria-expanded','false');
-    function doFlip(el){
-      const isFlipped = el.classList.toggle('is-flipped');
-      el.setAttribute('aria-expanded', isFlipped ? 'true' : 'false');
+    
+    // Forzamos que el contenedor interno tenga las propiedades correctas
+    const inner = card.querySelector('.service-card-inner');
+    if(inner) inner.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+
+    function doFlip(el, forceState = null){
+      const currentState = el.classList.contains('is-flipped');
+      const newState = forceState !== null ? forceState : !currentState;
+      
+      if(newState) el.classList.add('is-flipped');
+      else el.classList.remove('is-flipped');
+      
+      el.setAttribute('aria-expanded', newState ? 'true' : 'false');
     }
-    card.addEventListener('click',function(e){
-      if(e.target.closest('a'))return;
+
+    // Usamos click y touch para máxima compatibilidad
+    card.addEventListener('click', function(e){
+      if(e.target.closest('a') || e.target.closest('button')) return;
+      e.preventDefault();
       doFlip(this);
     });
+
+    // Cerrar si se hace click fuera (opcional, pero ayuda a limpiar la UI en móvil)
+    document.addEventListener('click', (e) => {
+      if(!card.contains(e.target) && card.classList.contains('is-flipped')){
+        doFlip(card, false);
+      }
+    });
+
     card.addEventListener('keydown',function(e){
       if((e.key==='Enter'||e.key===' ')&&!e.target.closest('a')){
         e.preventDefault();
@@ -384,9 +526,33 @@ function renderDashboard(){
 
 // VISITORS
 function renderVisitors(){
-  const stats = appData.stats || { total_visits: 0, today_visits: 0 };
+  const stats = appData.stats || { total_visits: 0, today_visits: 0, device_stats: {mobile:0, desktop:0}, recent_visits: [] };
   document.getElementById('vis-total').textContent = stats.total_visits;
   document.getElementById('vis-today').textContent = stats.today_visits;
+  
+  const vM = document.getElementById('vis-mobile');
+  const vD = document.getElementById('vis-desktop');
+  if(vM) vM.textContent = stats.device_stats.mobile;
+  if(vD) vD.textContent = stats.device_stats.desktop;
+
+  const tbody = document.getElementById('vis-recent-tbody');
+  if(tbody){
+    tbody.innerHTML = (stats.recent_visits || []).map(v => {
+      let device = 'Computadora';
+      const ua = (v.ua || '').toLowerCase();
+      if(ua.includes('iphone')) device = 'iPhone';
+      else if(ua.includes('android')) device = 'Android';
+      else if(ua.includes('mobile')) device = 'Móvil';
+      
+      const ipDisplay = v.ip === '127.0.0.1' ? 'Localhost (Tú)' : v.ip;
+
+      return `<tr>
+        <td style="color:var(--accent-cyan); font-family:monospace;">${ipDisplay}</td>
+        <td style="color:var(--text-secondary); font-size:0.75rem;">${device} — ${v.ua.split(' ').slice(0,3).join(' ')}...</td>
+        <td style="font-weight:600;">${v.time}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="3" style="text-align:center;padding:20px;">No hay registros recientes</td></tr>';
+  }
 }
 
 async function resetVisits(){
@@ -396,8 +562,9 @@ async function resetVisits(){
     await refreshData();
     renderVisitors();
     if(document.getElementById('section-dashboard').classList.contains('active')) renderDashboard();
+    showNotif('Estadísticas de visitas reiniciadas con éxito');
   } else {
-    alert('Error al reiniciar visitas: ' + (res.error || 'Error desconocido'));
+    showNotif('Error al reiniciar visitas', 'error');
   }
 }
 
@@ -407,6 +574,7 @@ async function updateIncome(val, save = true){
   if(save) {
     await api('/api/settings', 'POST', { dr_income: val });
     appData.settings.dr_income = val;
+    showNotif('Ingreso mensual actualizado');
   }
 }
 
@@ -448,10 +616,15 @@ async function saveClient(){
   };
   if(editId) client.id = +editId;
   
-  await api('/api/clients', 'POST', client);
-  await refreshData();
-  closeModal('client-modal');renderClients();renderDashboard();
-  document.getElementById('cm-edit-id').value='';
+  const res = await api('/api/clients', 'POST', client);
+  if(res.success){
+    await refreshData();
+    closeModal('client-modal');renderClients();renderDashboard();
+    document.getElementById('cm-edit-id').value='';
+    showNotif(editId ? 'Cliente actualizado' : 'Cliente guardado');
+  } else {
+    showNotif('Error al guardar cliente', 'error');
+  }
 }
 function editClient(id){
   const c=appData.clients.find(c=>c.id===id);if(!c)return;
@@ -465,10 +638,15 @@ function editClient(id){
   openModal('client-modal');
 }
 async function deleteClient(id){
-  if(!confirm('Eliminar este cliente?'))return;
-  await api(`/api/clients/${id}`, 'DELETE');
-  await refreshData();
-  renderClients();renderDashboard();
+  if(!confirm('¿Eliminar este cliente?'))return;
+  const res = await api(`/api/clients/${id}`, 'DELETE');
+  if(res.success){
+    await refreshData();
+    renderClients();renderDashboard();
+    showNotif('Cliente eliminado');
+  } else {
+    showNotif('Error al eliminar cliente', 'error');
+  }
 }
 
 // PROJECTS
@@ -510,10 +688,15 @@ async function saveProject(){
   };
   if(editId) proj.id = +editId;
   
-  await api('/api/projects', 'POST', proj);
-  await refreshData();
-  closeModal('project-modal');renderProjects();renderDashboard();
-  document.getElementById('pm-edit-id').value='';
+  const res = await api('/api/projects', 'POST', proj);
+  if(res.success){
+    await refreshData();
+    closeModal('project-modal');renderProjects();renderDashboard();
+    document.getElementById('pm-edit-id').value='';
+    showNotif(editId ? 'Proyecto actualizado' : 'Proyecto guardado');
+  } else {
+    showNotif('Error al guardar proyecto', 'error');
+  }
 }
 function editProject(id){
   const p=appData.projects.find(p=>p.id===id);if(!p)return;
@@ -527,10 +710,15 @@ function editProject(id){
   openModal('project-modal');
 }
 async function deleteProject(id){
-  if(!confirm('Eliminar este proyecto?'))return;
-  await api(`/api/projects/${id}`, 'DELETE');
-  await refreshData();
-  renderProjects();renderDashboard();
+  if(!confirm('¿Eliminar este proyecto?'))return;
+  const res = await api(`/api/projects/${id}`, 'DELETE');
+  if(res.success){
+    await refreshData();
+    renderProjects();renderDashboard();
+    showNotif('Proyecto eliminado');
+  } else {
+    showNotif('Error al eliminar proyecto', 'error');
+  }
 }
 
 // MESSAGES
@@ -553,15 +741,21 @@ async function changeMessageStatus(id){
   const m=appData.messages.find(m=>m.id===id);if(!m)return;
   const statuses=['Nuevo','Contactado','Cerrado'];
   m.status=statuses[(statuses.indexOf(m.status)+1)%statuses.length];
-  await api('/api/messages', 'POST', m);
-  await refreshData();
-  renderMessages();renderDashboard();
+  const res = await api('/api/messages', 'POST', m);
+  if(res.success){
+    await refreshData();
+    renderMessages();renderDashboard();
+    showNotif('Estado de mensaje actualizado');
+  }
 }
 async function deleteMessage(id){
-  if(!confirm('Eliminar mensaje?'))return;
-  await api(`/api/messages/${id}`, 'DELETE');
-  await refreshData();
-  renderMessages();
+  if(!confirm('¿Eliminar mensaje?'))return;
+  const res = await api(`/api/messages/${id}`, 'DELETE');
+  if(res.success){
+    await refreshData();
+    renderMessages();
+    showNotif('Mensaje eliminado');
+  }
 }
 
 // QUOTES
@@ -608,7 +802,7 @@ function generateQuote(){
   document.getElementById('quote-actions').style.display='flex';
 }
 function copyQuote(){
-  navigator.clipboard.writeText(document.getElementById('quote-output').textContent).then(()=>alert('Cotizacion copiada al portapapeles'));
+  navigator.clipboard.writeText(document.getElementById('quote-output').textContent).then(()=>showNotif('Cotización copiada al portapapeles'));
 }
 function shareQuoteWA(){
   const text=encodeURIComponent(document.getElementById('quote-output').textContent);
@@ -634,15 +828,23 @@ function renderPortfolio(){
 }
 async function savePortfolio(){
   const item = {title:document.getElementById('pf-title').value,desc:document.getElementById('pf-desc').value,url:document.getElementById('pf-url').value,link:document.getElementById('pf-link').value};
-  await api('/api/portfolio', 'POST', item);
-  await refreshData();
-  closeModal('portfolio-modal');renderPortfolio();
+  const res = await api('/api/portfolio', 'POST', item);
+  if(res.success){
+    await refreshData();
+    closeModal('portfolio-modal');renderPortfolio();
+    showNotif('Proyecto agregado al portafolio');
+  } else {
+    showNotif('Error al guardar portafolio', 'error');
+  }
 }
 async function deletePortfolio(id){
-  if(!confirm('Eliminar proyecto del portafolio?'))return;
-  await api(`/api/portfolio/${id}`, 'DELETE');
-  await refreshData();
-  renderPortfolio();
+  if(!confirm('¿Eliminar proyecto del portafolio?'))return;
+  const res = await api(`/api/portfolio/${id}`, 'DELETE');
+  if(res.success){
+    await refreshData();
+    renderPortfolio();
+    showNotif('Proyecto eliminado del portafolio');
+  }
 }
 
 // RESEÑAS (página pública + admin)
@@ -662,15 +864,18 @@ function renderReviewsAdmin(){
 }
 async function deletePublicReview(id){
   if(!confirm('Esta reseña dejará de mostrarse en la página pública. ¿Continuar?'))return;
-  await api(`/api/reviews/${id}`, 'DELETE');
-  await refreshData();
-  renderReviewsAdmin();
-  renderPublicTestimonials();
+  const res = await api(`/api/reviews/${id}`, 'DELETE');
+  if(res.success){
+    await refreshData();
+    renderReviewsAdmin();
+    renderPublicTestimonials();
+    showNotif('Reseña eliminada');
+  }
 }
 async function savePublicReview(){
   const name=document.getElementById('rv-name').value.trim();
   const text=document.getElementById('rv-text').value.trim();
-  if(!name||!text){alert('Nombre y texto de la reseña son obligatorios');return;}
+  if(!name||!text){showNotif('Nombre y texto son obligatorios', 'error');return;}
   const review = {
     initials:(document.getElementById('rv-ini').value.trim()||name.split(/\s+/).map(w=>w[0]).join('').slice(0,3)).toUpperCase(),
     stars:Math.min(5,Math.max(1,+document.getElementById('rv-stars').value||5)),
@@ -678,16 +883,19 @@ async function savePublicReview(){
     biz:document.getElementById('rv-biz').value.trim(),
     text
   };
-  await api('/api/reviews', 'POST', review);
-  await refreshData();
-  closeModal('review-modal');
-  document.getElementById('rv-name').value='';
-  document.getElementById('rv-biz').value='';
-  document.getElementById('rv-ini').value='';
-  document.getElementById('rv-text').value='';
-  document.getElementById('rv-stars').value='5';
-  renderReviewsAdmin();
-  renderPublicTestimonials();
+  const res = await api('/api/reviews', 'POST', review);
+  if(res.success){
+    await refreshData();
+    closeModal('review-modal');
+    document.getElementById('rv-name').value='';
+    document.getElementById('rv-biz').value='';
+    document.getElementById('rv-ini').value='';
+    document.getElementById('rv-text').value='';
+    document.getElementById('rv-stars').value='5';
+    renderReviewsAdmin();
+    renderPublicTestimonials();
+    showNotif('Reseña publicada con éxito');
+  }
 }
 
 async function submitPublicReview(){
@@ -731,11 +939,19 @@ function toggleSection(id){
   document.getElementById(id).classList.toggle('on');
 }
 async function saveSettings(){
+  const btn = event ? event.target : null;
+  const originalText = btn ? btn.textContent : '';
+  if(btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
+
   const settingsUpdate = {};
   const pass1=document.getElementById('cfg-pass1').value;
   const pass2=document.getElementById('cfg-pass2').value;
   if(pass1){
-    if(pass1!==pass2){alert('Las contrasenas no coinciden');return;}
+    if(pass1!==pass2){
+      showNotif('Las contraseñas no coinciden', 'error');
+      if(btn) { btn.disabled = false; btn.textContent = originalText; }
+      return;
+    }
     settingsUpdate.dr_admin_pass = pass1;
   }
   settingsUpdate.dr_wa = document.getElementById('cfg-wa').value.replace(/\D/g,'');
@@ -744,18 +960,16 @@ async function saveSettings(){
   const cig=document.getElementById('cfg-ig');
   const ctt=document.getElementById('cfg-tt');
   function normIg(v){
-    const t=(v||'').trim();if(!t)return'';
-    if(/^https?:\/\//i.test(t))return t;
-    const u=t.replace(/^@/,'').replace(/^\//,'').replace(/^instagram\.com\/?/i,'');
-    return u?'https://www.instagram.com/'+u:'';
+    let t = (v || '').trim(); if (!t) return '';
+    if(/^https?:\/\//i.test(t)) return t;
+    t = t.replace(/^(https?:\/\/)?(www\.)?instagram\.com/i, '').replace(/[@\/\s]/g, '');
+    return t ? 'https://www.instagram.com/' + t : '';
   }
   function normTt(v){
-    const t=(v||'').trim();if(!t)return'';
-    if(/^https?:\/\//i.test(t))return t;
-    let u=t.replace(/^@/,'').replace(/^\//,'');
-    if(/^tiktok\.com\//i.test(u))return'https://www.'+u;
-    u=u.replace(/^@/,'');
-    return'https://www.tiktok.com/@'+u;
+    let t = (v || '').trim(); if (!t) return '';
+    if(/^https?:\/\//i.test(t)) return t;
+    t = t.replace(/^(https?:\/\/)?(www\.)?tiktok\.com/i, '').replace(/[@\/\s]/g, '');
+    return t ? 'https://tiktok.com/@' + t + '?_t=1' : '';
   }
   if(cig) settingsUpdate.dr_social_ig = normIg(cig.value);
   if(ctt) settingsUpdate.dr_social_tt = normTt(ctt.value);
@@ -765,15 +979,19 @@ async function saveSettings(){
   if(cf1) settingsUpdate.dr_footer_1 = cf1.value;
   if(cf2) settingsUpdate.dr_footer_2 = cf2.value;
   
-  await api('/api/settings', 'POST', settingsUpdate);
-  await refreshData();
-  
-  document.getElementById('cfg-msg').style.display='block';
-  document.getElementById('cfg-pass1').value='';document.getElementById('cfg-pass2').value='';
-  setTimeout(()=>document.getElementById('cfg-msg').style.display='none',2500);
-  applyWhatsAppPhone();
-  applySocialAndFooter();
-  loadAdminSettingsForm();
+  const res = await api('/api/settings', 'POST', settingsUpdate);
+  if(res && res.success){
+    await refreshData();
+    showNotif('Configuración guardada correctamente');
+    document.getElementById('cfg-pass1').value='';document.getElementById('cfg-pass2').value='';
+    applyWhatsAppPhone();
+    applySocialAndFooter();
+    loadAdminSettingsForm();
+  } else {
+    showNotif('Error al guardar configuración', 'error');
+  }
+
+  if(btn) { btn.disabled = false; btn.textContent = originalText; }
 }
 
 // MODALS
@@ -790,7 +1008,48 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   renderPublicTestimonials();
   applyWhatsAppPhone();
   applySocialAndFooter();
+
+  // FADE-IN-UP OBSERVER
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('visible');
+        if(e.target.classList.contains('stat-num')) startCounter(e.target);
+      }
+    });
+  }, {threshold: 0.1});
+  document.querySelectorAll('.fade-in-up, .stat-num').forEach(el=>obs.observe(el));
+
+  // SCROLL EFFECTS
+  window.addEventListener('scroll', ()=>{
+    const nav = document.getElementById('navbar');
+    if(window.scrollY > 50) nav.classList.add('scrolled');
+    else nav.classList.remove('scrolled');
+  });
 });
+
+
+function toggleMobile(){
+  const m = document.getElementById('mobileMenu');
+  if(m) m.classList.toggle('open');
+}
+
+function startCounter(el){
+  if(el.dataset.started) return;
+  el.dataset.started = 'true';
+  const target = +el.dataset.target || 0;
+  let curr = 0;
+  const step = Math.ceil(target / 40);
+  const itv = setInterval(()=>{
+    curr += step;
+    if(curr >= target){
+      el.textContent = target + (target >= 5 ? '+' : '');
+      clearInterval(itv);
+    } else {
+      el.textContent = curr;
+    }
+  }, 30);
+}
 
 // KEYBOARD SECRET (Ctrl+Shift+A)
 document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key==='A'){showLogin();}});
