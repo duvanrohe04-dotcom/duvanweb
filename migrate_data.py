@@ -10,20 +10,20 @@ def migrate_data():
     app = create_app()
     
     # Paths
-    sqlite_path = os.path.join(app.instance_path, 'site.db')
+    sqlite_path = os.path.join(app.instance_path, 'duvan_web.db')
     if not os.path.exists(sqlite_path):
         print(f"No se encontró la base de datos SQLite en: {sqlite_path}")
         return
 
-    # Database URL from environment (Postgres)
-    pg_url = os.getenv('DATABASE_URL')
-    if not pg_url or 'postgresql' not in pg_url:
-        print("DATABASE_URL no está configurada para PostgreSQL.")
-        return
-
-    print(f"Migrando datos desde {sqlite_path} hacia PostgreSQL...")
-
     with app.app_context():
+        # Database URL from app config (Postgres)
+        pg_url = app.config.get('SQLALCHEMY_DATABASE_URI')
+        if not pg_url or 'postgresql' not in pg_url:
+            print("DATABASE_URL no está configurada para PostgreSQL en la configuración de la app.")
+            return
+
+        print(f"Migrando datos desde {sqlite_path} hacia PostgreSQL...")
+
         # Asegurarse de que las tablas existen en Postgres
         db.create_all()
         
@@ -49,8 +49,10 @@ def migrate_data():
             # Obtener nombres de columnas
             columns = [column[0] for column in sl_cursor.description]
             
+            # Limpiar tabla en Postgres antes de insertar para evitar duplicados
+            db.session.execute(text(f"TRUNCATE TABLE {table_name} RESTART IDENTITY CASCADE"))
+            
             # Insertar en Postgres
-            # Usamos raw SQL para evitar problemas de sesión con IDs manuales
             placeholders = ", ".join([":" + col for col in columns])
             insert_query = text(f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})")
             
@@ -61,10 +63,12 @@ def migrate_data():
                     db.session.execute(insert_query, data)
                     count += 1
                 except Exception as e:
-                    print(f"  Error insertando fila en {table_name}: {e}")
+                    # Usar repr() para evitar errores de codificación al imprimir en consola Windows
+                    print(f"  Error insertando fila en {table_name}: {repr(e)}")
                     db.session.rollback()
             
             db.session.commit()
+
             print(f"  Migradas {count} filas a {table_name}.")
 
         sl_conn.close()
