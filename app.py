@@ -6,7 +6,7 @@ load_dotenv()
 
 from conf.settings import get_config
 from routes.main import main_bp
-from extensions import db
+from extensions import db, migrate
 
 def create_app():
     app = Flask(__name__)
@@ -16,6 +16,7 @@ def create_app():
     os.makedirs(app.instance_path, exist_ok=True)
 
     db.init_app(app)
+    migrate.init_app(app, db)
     
     with app.app_context():
         from models.models import Setting, PublicReview, Client, Project, Message, PortfolioItem, Visit
