@@ -1,3 +1,4 @@
+from flask import blueprints
 import os
 import secrets
 import warnings
@@ -29,6 +30,7 @@ class Config:
             from urllib.parse import quote_plus
             password_encoded = quote_plus(password)
             _db_url = f"postgresql+psycopg2://{user}:{password_encoded}@{host}:{port}/{db_name}"
+            print(_db_url, flush=True)
 
     if _db_url and _db_url.startswith("postgres://"):
         _db_url = _db_url.replace("postgres://", "postgresql://", 1)
