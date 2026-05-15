@@ -23,16 +23,17 @@ services:
       - postgres-db
 
   postgres-db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: postgres-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-admin}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme-pg-pass-2026}
       POSTGRES_DB: ${POSTGRES_DB:-master_db}
+      TZ: America/Bogota
     ports:
       - "5051:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - /data/postgres/prod_dataD:/var/lib/postgresql/data
     networks:
       - coolify
     restart: unless-stopped
@@ -40,6 +41,3 @@ services:
 networks:
   coolify:
     external: true
-
-volumes:
-  postgres_data:
