@@ -15,7 +15,7 @@ def create_app():
     db.init_app(app)
     
     with app.app_context():
-        from models.models import Setting, PublicReview, Client, Project, Testimonial, Visit
+        from models.models import Setting, PublicReview, Client, Project, Message, PortfolioItem, Visit
         try:
             db.create_all()
             # Seed initial data if empty
