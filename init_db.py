@@ -1,7 +1,9 @@
 from app import create_app
 from extensions import db
 from models.models import Client, Project, Message, PortfolioItem, PublicReview, Setting, Visit
+from conf.settings import get_config
 
+config = get_config()
 app = create_app()
 
 with app.app_context():
@@ -16,7 +18,7 @@ with app.app_context():
         db.session.add(Setting(key='dr_footer_2', value=''))
         db.session.add(Setting(key='dr_social_ig', value=''))
         db.session.add(Setting(key='dr_social_tt', value=''))
-        db.session.add(Setting(key='dr_admin_pass', value='DR2026admin'))
+        db.session.add(Setting(key='dr_admin_pass', value=config.ADMIN_PASSWORD))
         db.session.add(Setting(key='dr_income', value='0'))
         
     if not PublicReview.query.first():

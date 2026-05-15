@@ -10,7 +10,8 @@ from extensions import db, migrate
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(get_config())
+    config = get_config()
+    app.config.from_object(config)
     
     # Ensure instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)
@@ -30,7 +31,7 @@ def create_app():
                 db.session.add(Setting(key='dr_footer_2', value=''))
                 db.session.add(Setting(key='dr_social_ig', value=''))
                 db.session.add(Setting(key='dr_social_tt', value=''))
-                db.session.add(Setting(key='dr_admin_pass', value='DR2026admin'))
+                db.session.add(Setting(key='dr_admin_pass', value=config.ADMIN_PASSWORD))
                 db.session.add(Setting(key='dr_income', value='0'))
                 db.session.commit()
             
