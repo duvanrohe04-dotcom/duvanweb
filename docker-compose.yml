@@ -12,7 +12,6 @@ services:
       - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}
       - SECRET_KEY=${SECRET_KEY}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - PORT=${PORT:-5001}
       - SITE_NAME=${SITE_NAME:-Duvan Rodriguez}
       - SITE_URL=${SITE_URL:-https://duvanweb.com}

@@ -1,15 +1,20 @@
 import os
+import secrets
+import warnings
 from dotenv import load_dotenv
 
 load_dotenv()
 
+def _ensure(var_name, default_factory):
+    val = os.getenv(var_name)
+    if val:
+        return val
+    generated = default_factory()
+    warnings.warn(f"{var_name} no configurado. Se generó uno automáticamente. Defínelo en Coolify para producción.")
+    return generated
+
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY')
-    if not SECRET_KEY:
-        raise RuntimeError("SECRET_KEY no esta configurado. Define SECRET_KEY en .env o variables de entorno.")
-    ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD')
-    if not ADMIN_PASSWORD:
-        raise RuntimeError("ADMIN_PASSWORD no esta configurado. Define ADMIN_PASSWORD en .env o variables de entorno.")
+    SECRET_KEY = _ensure("SECRET_KEY", lambda: secrets.token_hex(32))
     FLASK_ENV = os.getenv('FLASK_ENV', 'production')
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
     _db_url = os.getenv('DATABASE_URL')
