@@ -44,3 +44,9 @@ class PublicReview(db.Model):
 class Setting(db.Model):
     key = db.Column(db.String(50), primary_key=True)
     value = db.Column(db.Text)
+
+class Visit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.String(50))
+    user_agent = db.Column(db.String(255))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)

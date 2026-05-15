@@ -27,6 +27,7 @@ async function refreshData() {
 }
 
 // ══════════════════════════════════════
+// ══════════════════════════════════════
 // PARTICLES CANVAS (HERO)
 // ══════════════════════════════════════
 (function(){
@@ -229,6 +230,7 @@ function renderSection(name){
   if(name==='messages')renderMessages();
   if(name==='portfolio')renderPortfolio();
   if(name==='dashboard')renderDashboard();
+  if(name==='visitors')renderVisitors();
   if(name==='reviews')renderReviewsAdmin();
 }
 
@@ -312,11 +314,9 @@ function initServiceCardFlip(){
     card.setAttribute('role','button');
     card.setAttribute('tabindex','0');
     card.setAttribute('aria-expanded','false');
-    let flipped=false;
     function doFlip(el){
-      flipped=!flipped;
-      el.classList.toggle('is-flipped',flipped);
-      el.setAttribute('aria-expanded',flipped?'true':'false');
+      const isFlipped = el.classList.toggle('is-flipped');
+      el.setAttribute('aria-expanded', isFlipped ? 'true' : 'false');
     }
     card.addEventListener('click',function(e){
       if(e.target.closest('a'))return;
@@ -364,10 +364,10 @@ function renderDashboard(){
   const projects=appData.projects;
   const messages=appData.messages;
   const active=projects.filter(p=>p.status!=='Entregado').length;
-  const newMsgs=messages.filter(m=>m.status==='Nuevo').length;
+  const todayVisits=appData.stats ? appData.stats.today_visits : 0;
   document.getElementById('stat-active').textContent=active;
   document.getElementById('stat-clients').textContent=clients.length;
-  document.getElementById('stat-messages').textContent=newMsgs;
+  document.getElementById('stat-visits').textContent=todayVisits;
   const el=document.getElementById('dashboard-projects-list');
   el.innerHTML=projects.slice(-4).reverse().map(p=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);">
@@ -380,6 +380,25 @@ function renderDashboard(){
         <div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%"></div></div>
       </div>
     </div>`).join('');
+}
+
+// VISITORS
+function renderVisitors(){
+  const stats = appData.stats || { total_visits: 0, today_visits: 0 };
+  document.getElementById('vis-total').textContent = stats.total_visits;
+  document.getElementById('vis-today').textContent = stats.today_visits;
+}
+
+async function resetVisits(){
+  if(!confirm('¿Estás seguro de que deseas reiniciar todas las estadísticas de visitas? Esta acción no se puede deshacer.')) return;
+  const res = await api('/api/visits', 'DELETE');
+  if(res.success){
+    await refreshData();
+    renderVisitors();
+    if(document.getElementById('section-dashboard').classList.contains('active')) renderDashboard();
+  } else {
+    alert('Error al reiniciar visitas: ' + (res.error || 'Error desconocido'));
+  }
 }
 
 async function updateIncome(val, save = true){

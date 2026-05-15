@@ -1,11 +1,20 @@
 from flask import Blueprint, render_template, request, jsonify
 from extensions import db
-from models.models import Client, Project, Message, PortfolioItem, PublicReview, Setting
+from models.models import Client, Project, Message, PortfolioItem, PublicReview, Setting, Visit
+from datetime import datetime, timedelta
 
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route('/')
 def index():
+    try:
+        # Record visit
+        visit = Visit(ip=request.remote_addr, user_agent=request.headers.get('User-Agent'))
+        db.session.add(visit)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error recording visit: {e}")
     return render_template('index.html')
 
 # --- API ROUTES ---
@@ -21,13 +30,21 @@ def get_init_data():
     
     settings_dict = {s.key: s.value for s in settings}
     
+    # Visit Stats
+    total_visits = Visit.query.count()
+    today_visits = Visit.query.filter(Visit.timestamp >= datetime.utcnow() - timedelta(hours=24)).count()
+    
     return jsonify({
         'clients': [{ 'id': c.id, 'name': c.name, 'biz': c.biz, 'phone': c.phone, 'service': c.service, 'status': c.status, 'date': c.date } for c in clients],
         'projects': [{ 'id': p.id, 'client': p.client, 'type': p.type, 'start': p.start, 'end': p.end, 'status': p.status, 'progress': p.progress } for p in projects],
         'messages': [{ 'id': m.id, 'name': m.name, 'phone': m.phone, 'msg': m.msg, 'status': m.status } for m in messages],
         'portfolio': [{ 'id': p.id, 'title': p.title, 'desc': p.desc, 'url': p.url, 'link': p.link } for p in portfolio],
         'reviews': [{ 'id': r.id, 'initials': r.initials, 'stars': r.stars, 'name': r.name, 'biz': r.biz, 'text': r.text } for r in reviews],
-        'settings': settings_dict
+        'settings': settings_dict,
+        'stats': {
+            'total_visits': total_visits,
+            'today_visits': today_visits
+        }
     })
 
 @main_bp.route('/api/clients', methods=['POST'])
@@ -179,6 +196,16 @@ def delete_review(id):
         db.session.delete(r)
         db.session.commit()
     return jsonify({'success': True})
+
+@main_bp.route('/api/visits', methods=['DELETE'])
+def reset_visits():
+    try:
+        Visit.query.delete()
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
 @main_bp.route('/api/settings', methods=['POST'])
 def save_settings():

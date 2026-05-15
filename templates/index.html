@@ -496,6 +496,7 @@
   <div class="admin-sidebar">
     <div class="admin-logo">&lt;DR/&gt;<small>ADMIN PANEL</small></div>
     <div class="admin-nav-item active" onclick="showAdminSection('dashboard',this)"><i class="fas fa-chart-bar"></i><span class="nav-text-wrap"><strong>Dashboard</strong><span class="nav-desc">Panel principal con resumen de proyectos activos, estadísticas de clientes y flujo de mensajes recientes.</span></span></div>
+    <div class="admin-nav-item" onclick="showAdminSection('visitors',this)"><i class="fas fa-eye"></i><span class="nav-text-wrap"><strong>Visitantes</strong><span class="nav-desc">Estadísticas de tráfico: monitorea cuántas personas visitan tu página en tiempo real.</span></span></div>
     <div class="admin-nav-item" onclick="showAdminSection('clients',this)"><i class="fas fa-users"></i><span class="nav-text-wrap"><strong>Clientes</strong><span class="nav-desc">Base de datos detallada de clientes, historial de servicios y acceso directo a contacto por WhatsApp.</span></span></div>
     <div class="admin-nav-item" onclick="showAdminSection('projects',this)"><i class="fas fa-folder"></i><span class="nav-text-wrap"><strong>Proyectos</strong><span class="nav-desc">Gestión de flujo de trabajo: monitorea etapas de diseño, desarrollo y progreso de entregas.</span></span></div>
     <div class="admin-nav-item" onclick="showAdminSection('messages',this)"><i class="fas fa-comment-dots"></i><span class="nav-text-wrap"><strong>Mensajes</strong><span class="nav-desc">Control de leads y consultas recibidas; gestiona el estado de contacto y respuestas directas.</span></span></div>
@@ -517,7 +518,7 @@
       <div class="admin-stat-cards">
         <div class="admin-stat"><span class="admin-stat-num" style="color:var(--accent-cyan);" id="stat-active">0</span><div class="admin-stat-label">Proyectos Activos</div></div>
         <div class="admin-stat"><span class="admin-stat-num" style="color:var(--success);" id="stat-clients">0</span><div class="admin-stat-label">Clientes Totales</div></div>
-        <div class="admin-stat"><span class="admin-stat-num" style="color:var(--warning);" id="stat-messages">0</span><div class="admin-stat-label">Mensajes Nuevos</div></div>
+        <div class="admin-stat"><span class="admin-stat-num" style="color:var(--warning);" id="stat-visits">0</span><div class="admin-stat-label">Visitas Hoy</div></div>
         <div class="admin-stat"><span class="admin-stat-num" style="color:var(--accent-blue);" id="stat-income">$0</span><div class="admin-stat-label">Ingresos del Mes</div></div>
       </div>
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;">
@@ -530,6 +531,32 @@
       <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;">
         <h3 style="font-family:'Orbitron',sans-serif;font-size:.95rem;margin-bottom:16px;color:var(--accent-cyan);">Proyectos recientes</h3>
         <div id="dashboard-projects-list"></div>
+      </div>
+    </div>
+
+    <!-- VISITORS -->
+    <div class="admin-section" id="section-visitors">
+      <div class="admin-header">
+        <div class="admin-title">👁️ Análisis de Visitantes</div>
+      </div>
+      <p class="admin-section-help">📌 <strong>Análisis de Visitantes</strong> — Monitorea el tráfico de tu web. Aquí puedes ver cuántas personas han entrado a tu página en total y cuántas lo han hecho en las últimas 24 horas. Esto te ayuda a entender si tu marketing está funcionando y en qué momentos del día tienes más interesados.</p>
+      <div class="admin-stat-cards">
+        <div class="admin-stat" style="background:linear-gradient(135deg,rgba(0,207,255,0.1),transparent);">
+          <span class="admin-stat-num" style="color:var(--accent-cyan);" id="vis-total">0</span>
+          <div class="admin-stat-label">Visitas Totales</div>
+        </div>
+        <div class="admin-stat" style="background:linear-gradient(135deg,rgba(0,255,136,0.1),transparent);">
+          <span class="admin-stat-num" style="color:var(--success);" id="vis-today">0</span>
+          <div class="admin-stat-label">Visitas Hoy (24h)</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;text-align:right;">
+        <button class="btn-sm btn-danger" onclick="resetVisits()"><i class="fas fa-trash-alt"></i> Reiniciar Estadísticas</button>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;">
+        <i class="fas fa-chart-line" style="font-size:3rem;color:var(--accent-cyan);margin-bottom:16px;opacity:.5;"></i>
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--text-primary);">Escáner de Tráfico Activo</h3>
+        <p style="color:var(--text-secondary);font-size:.9rem;margin-top:8px;">Cada vez que alguien entra a tu página, el sistema lo registra automáticamente para que puedas medir tu crecimiento.</p>
       </div>
     </div>
 
