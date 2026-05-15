@@ -1,12 +1,12 @@
 from app import create_app
 from extensions import db
-from models.models import Client, Project, Message, PortfolioItem, PublicReview, Setting
+from models.models import Client, Project, Message, PortfolioItem, PublicReview, Setting, Visit
 
 app = create_app()
 
 with app.app_context():
     db.create_all()
-    print("Base de datos SQLite creada exitosamente.")
+    print("Base de datos inicializada correctamente.")
     
     # Seed initial data if empty
     if not Setting.query.get('dr_wa'):

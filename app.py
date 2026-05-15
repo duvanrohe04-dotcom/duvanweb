@@ -32,17 +32,18 @@ def create_app():
                 db.session.add(Setting(key='dr_admin_pass', value='DR2026admin'))
                 db.session.add(Setting(key='dr_income', value='0'))
                 db.session.commit()
+            
+            if not PublicReview.query.first():
+                reviews = [
+                    PublicReview(initials='MC', stars=5, name='María Camila Torres', biz='🍽️ Restaurante El Fogón — Bogotá', text='Desde que Duvan me hizo la página, mis reservas se duplicaron. Ahora recibo clientes de toda Bogotá y hasta de otras ciudades. La inversión se pagó sola en el primer mes.'),
+                    PublicReview(initials='JA', stars=5, name='Juan Andrés Mejía', biz='✂️ Barbería Style — Medellín', text='Mi peluquería ahora aparece en Google cuando la gente busca cortes de cabello cerca. Antes dependía solo del voz a voz. Duvan hizo un trabajo muy profesional y rápido.'),
+                    PublicReview(initials='LP', stars=5, name='Laura Patricia Gómez', biz='👗 Boutique LPG — Cali', text='Tengo mi tienda en línea funcionando perfectamente. Vendo a todo el país sin salir de mi casa. El panel es fácil de usar y Duvan siempre responde cuando lo necesito.')
+                ]
+                db.session.bulk_save_objects(reviews)
+                db.session.commit()
         except Exception as e:
             print(f"DB Init info (can be ignored if running multiple workers): {e}")
             db.session.rollback()
-        if not PublicReview.query.first():
-            reviews = [
-                PublicReview(initials='MC', stars=5, name='María Camila Torres', biz='🍽️ Restaurante El Fogón — Bogotá', text='Desde que Duvan me hizo la página, mis reservas se duplicaron. Ahora recibo clientes de toda Bogotá y hasta de otras ciudades. La inversión se pagó sola en el primer mes.'),
-                PublicReview(initials='JA', stars=5, name='Juan Andrés Mejía', biz='✂️ Barbería Style — Medellín', text='Mi peluquería ahora aparece en Google cuando la gente busca cortes de cabello cerca. Antes dependía solo del voz a voz. Duvan hizo un trabajo muy profesional y rápido.'),
-                PublicReview(initials='LP', stars=5, name='Laura Patricia Gómez', biz='👗 Boutique LPG — Cali', text='Tengo mi tienda en línea funcionando perfectamente. Vendo a todo el país sin salir de mi casa. El panel es fácil de usar y Duvan siempre responde cuando lo necesito.')
-            ]
-            db.session.bulk_save_objects(reviews)
-        db.session.commit()
 
     app.register_blueprint(main_bp)
 

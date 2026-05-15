@@ -7,7 +7,7 @@ services:
     expose:
       - "${PORT:-5001}"
     ports:
-      - "${PORT:-5001}:${PORT:-5032}"
+      - "${PORT:-5001}:${PORT:-5001}"
     # El código va dentro de la imagen Docker (COPY . .).
     # Sin bind mount para evitar que Coolify monte código viejo.
     environment:
