@@ -8,14 +8,8 @@ services:
       - "${PORT:-5001}"
     ports:
       - "${PORT:-5001}:${PORT:-5001}"
-    environment:
-      - FLASK_ENV=${FLASK_ENV:-production}
-      - FLASK_DEBUG=${FLASK_DEBUG:-0}
-      - SECRET_KEY=${SECRET_KEY}
-      - PORT=${PORT:-5001}
-      - SITE_NAME=${SITE_NAME:-Duvan Rodriguez}
-      - SITE_URL=${SITE_URL:-https://duvanweb.com}
-      - DATABASE_URL=${DATABASE_URL}
+    env_file:
+      - .env
     networks:
       - coolify
     restart: unless-stopped
@@ -25,13 +19,8 @@ services:
   postgres-db:
     image: postgres:16-alpine
     container_name: postgres-db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme-pg-pass-2026}
-      POSTGRES_DB: ${POSTGRES_DB:-master_db}
-      TZ: America/Bogota
-    ports:
-      - "5051:5432"
+    env_file:
+      - .env
     volumes:
       - /data/postgres/prod_dataD:/var/lib/postgresql/data
     networks:
