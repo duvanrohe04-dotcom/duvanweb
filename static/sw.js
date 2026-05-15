@@ -1,5 +1,5 @@
 /* Service worker: no servir JS/CSS obsoleto desde caché (causa texto viejo y lógica antigua). */
-const CACHE = 'dr-web-v8.1';
+const CACHE = 'dr-web-v8.2';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -30,8 +30,10 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       fetch(request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(request, copy));
+          if (request.method === 'GET') {
+            const copy = response.clone();
+            caches.open(CACHE).then((cache) => cache.put(request, copy));
+          }
           return response;
         })
         .catch(() => caches.match(request))
@@ -43,8 +45,11 @@ self.addEventListener('fetch', (e) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
       return fetch(request).then((response) => {
-        const copy = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(request, copy));
+        // Caching only GET requests (POST/PUT/etc are not supported by Cache API)
+        if (request.method === 'GET') {
+          const copy = response.clone();
+          caches.open(CACHE).then((cache) => cache.put(request, copy));
+        }
         return response;
       });
     })
