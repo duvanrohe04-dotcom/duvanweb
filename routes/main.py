@@ -9,8 +9,8 @@ main_bp = Blueprint('main', __name__)
 def index():
     try:
         visit = Visit()
-        visit.ip = request.remote_addr
-        visit.user_agent = request.headers.get('User-Agent')
+        visit.ip = request.headers.get('X-Forwarded-For', request.remote_addr or '').split(',')[0].strip()
+        visit.user_agent = request.headers.get('User-Agent', '')
         db.session.add(visit)
         db.session.commit()
     except Exception as e:
@@ -112,11 +112,15 @@ def save_client():
 
 @main_bp.route('/api/clients/<int:id>', methods=['DELETE'])
 def delete_client(id):
-    client = Client.query.get(id)
-    if client:
-        db.session.delete(client)
-        db.session.commit()
-    return jsonify({'success': True})
+    try:
+        client = Client.query.get(id)
+        if client:
+            db.session.delete(client)
+            db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/projects', methods=['POST'])
 def save_project():
@@ -144,11 +148,15 @@ def save_project():
 
 @main_bp.route('/api/projects/<int:id>', methods=['DELETE'])
 def delete_project(id):
-    project = Project.query.get(id)
-    if project:
-        db.session.delete(project)
-        db.session.commit()
-    return jsonify({'success': True})
+    try:
+        project = Project.query.get(id)
+        if project:
+            db.session.delete(project)
+            db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/messages', methods=['POST'])
 def save_message():
@@ -174,11 +182,15 @@ def save_message():
 
 @main_bp.route('/api/messages/<int:id>', methods=['DELETE'])
 def delete_message(id):
-    msg = Message.query.get(id)
-    if msg:
-        db.session.delete(msg)
-        db.session.commit()
-    return jsonify({'success': True})
+    try:
+        msg = Message.query.get(id)
+        if msg:
+            db.session.delete(msg)
+            db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/portfolio', methods=['POST'])
 def save_portfolio():
@@ -204,11 +216,15 @@ def save_portfolio():
 
 @main_bp.route('/api/portfolio/<int:id>', methods=['DELETE'])
 def delete_portfolio(id):
-    p = PortfolioItem.query.get(id)
-    if p:
-        db.session.delete(p)
-        db.session.commit()
-    return jsonify({'success': True})
+    try:
+        p = PortfolioItem.query.get(id)
+        if p:
+            db.session.delete(p)
+            db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/reviews', methods=['POST'])
 def save_review():
@@ -235,11 +251,15 @@ def save_review():
 
 @main_bp.route('/api/reviews/<int:id>', methods=['DELETE'])
 def delete_review(id):
-    r = PublicReview.query.get(id)
-    if r:
-        db.session.delete(r)
-        db.session.commit()
-    return jsonify({'success': True})
+    try:
+        r = PublicReview.query.get(id)
+        if r:
+            db.session.delete(r)
+            db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/visits', methods=['DELETE'])
 def reset_visits():

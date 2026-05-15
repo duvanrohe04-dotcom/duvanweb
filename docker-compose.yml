@@ -6,8 +6,6 @@ services:
     container_name: duvan_web
     expose:
       - "${PORT:-5001}"
-    ports:
-      - "${PORT:-5001}:${PORT:-5001}"
     environment:
       - FLASK_ENV=${FLASK_ENV:-production}
       - FLASK_DEBUG=${FLASK_DEBUG:-0}

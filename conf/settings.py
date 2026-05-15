@@ -18,12 +18,8 @@ class Config:
     FLASK_ENV = os.getenv('FLASK_ENV', 'production')
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
     _db_url = os.getenv('DATABASE_URL')
-    if _db_url:
-        if _db_url.startswith("postgres://"):
-            _db_url = _db_url.replace("postgres://", "postgresql://", 1)
-        if "postgresql" in _db_url and "sslmode" not in _db_url:
-            connector = "&" if "?" in _db_url else "?"
-            _db_url = f"{_db_url}{connector}sslmode=require"
+    if _db_url and _db_url.startswith("postgres://"):
+        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_DATABASE_URI = _db_url or 'sqlite:///site.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
