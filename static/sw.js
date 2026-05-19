@@ -1,5 +1,5 @@
 /* Service worker: no servir JS/CSS obsoleto desde caché (causa texto viejo y lógica antigua). */
-const CACHE = 'dr-web-v8.2';
+const CACHE = 'dr-web-v8.3';
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
@@ -41,11 +41,16 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
+  /* API: siempre red, nada de caché (para datos frescos) */
+  if (url.pathname.startsWith('/api/')) {
+    e.respondWith(fetch(request).catch(() => new Response(JSON.stringify({ success: false }), { status: 503 })));
+    return;
+  }
+
   e.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
       return fetch(request).then((response) => {
-        // Caching only GET requests (POST/PUT/etc are not supported by Cache API)
         if (request.method === 'GET') {
           const copy = response.clone();
           caches.open(CACHE).then((cache) => cache.put(request, copy));
