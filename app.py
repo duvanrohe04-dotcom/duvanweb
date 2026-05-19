@@ -31,8 +31,10 @@ def create_app():
                 db.session.add(Setting(key='dr_footer_2', value=''))
                 db.session.add(Setting(key='dr_social_ig', value=''))
                 db.session.add(Setting(key='dr_social_tt', value=''))
-                db.session.add(Setting(key='dr_admin_pass', value='admin'))
                 db.session.add(Setting(key='dr_income', value='0'))
+                db.session.commit()
+            if not Setting.query.get('dr_admin_pass'):
+                db.session.add(Setting(key='dr_admin_pass', value='admin'))
                 db.session.commit()
             
             if not PublicReview.query.first():
