@@ -22,11 +22,11 @@ class Config:
     if not _db_url:
         user = os.getenv('POSTGRES_USER')
         password = os.getenv('POSTGRES_PASSWORD')
-        host = os.getenv('POSTGRES_HOST', '178.238.238.248')
-        port = os.getenv('POSTGRES_PORT', '5051')
+        host = os.getenv('POSTGRES_HOST')
+        port = os.getenv('POSTGRES_PORT')
         db_name = os.getenv('POSTGRES_DB')
         
-        if all([user, password, host, db_name]):
+        if all([user, password, host, port, db_name]):
             from urllib.parse import quote_plus
             password_encoded = quote_plus(password)
             _db_url = f"postgresql+psycopg2://{user}:{password_encoded}@{host}:{port}/{db_name}"

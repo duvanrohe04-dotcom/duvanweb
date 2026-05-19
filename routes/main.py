@@ -88,27 +88,31 @@ def get_stats():
 
 @main_bp.route('/api/clients', methods=['POST'])
 def save_client():
-    data = request.json
-    client_id = data.get('id')
-    if client_id:
-        client = Client.query.get(client_id)
-        if not client:
+    try:
+        data = request.json
+        client_id = data.get('id')
+        if client_id:
+            client = Client.query.get(client_id)
+            if not client:
+                client = Client()
+                client.id = client_id
+                db.session.add(client)
+        else:
             client = Client()
-            client.id = client_id
             db.session.add(client)
-    else:
-        client = Client()
-        db.session.add(client)
-    
-    client.name = data.get('name')
-    client.biz = data.get('biz')
-    client.phone = data.get('phone')
-    client.service = data.get('service')
-    client.status = data.get('status')
-    client.date = data.get('date')
-    
-    db.session.commit()
-    return jsonify({'success': True, 'id': client.id})
+        
+        client.name = data.get('name')
+        client.biz = data.get('biz')
+        client.phone = data.get('phone')
+        client.service = data.get('service')
+        client.status = data.get('status')
+        client.date = data.get('date')
+        
+        db.session.commit()
+        return jsonify({'success': True, 'id': client.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/clients/<int:id>', methods=['DELETE'])
 def delete_client(id):
@@ -124,27 +128,31 @@ def delete_client(id):
 
 @main_bp.route('/api/projects', methods=['POST'])
 def save_project():
-    data = request.json
-    project_id = data.get('id')
-    if project_id:
-        project = Project.query.get(project_id)
-        if not project:
+    try:
+        data = request.json
+        project_id = data.get('id')
+        if project_id:
+            project = Project.query.get(project_id)
+            if not project:
+                project = Project()
+                project.id = project_id
+                db.session.add(project)
+        else:
             project = Project()
-            project.id = project_id
             db.session.add(project)
-    else:
-        project = Project()
-        db.session.add(project)
-    
-    project.client = data.get('client')
-    project.type = data.get('type')
-    project.start = data.get('start')
-    project.end = data.get('end')
-    project.status = data.get('status')
-    project.progress = data.get('progress')
-    
-    db.session.commit()
-    return jsonify({'success': True, 'id': project.id})
+        
+        project.client = data.get('client')
+        project.type = data.get('type')
+        project.start = data.get('start')
+        project.end = data.get('end')
+        project.status = data.get('status')
+        project.progress = data.get('progress')
+        
+        db.session.commit()
+        return jsonify({'success': True, 'id': project.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/projects/<int:id>', methods=['DELETE'])
 def delete_project(id):
@@ -160,25 +168,29 @@ def delete_project(id):
 
 @main_bp.route('/api/messages', methods=['POST'])
 def save_message():
-    data = request.json
-    msg_id = data.get('id')
-    if msg_id:
-        msg = Message.query.get(msg_id)
-        if not msg:
+    try:
+        data = request.json
+        msg_id = data.get('id')
+        if msg_id:
+            msg = Message.query.get(msg_id)
+            if not msg:
+                msg = Message()
+                msg.id = msg_id
+                db.session.add(msg)
+        else:
             msg = Message()
-            msg.id = msg_id
             db.session.add(msg)
-    else:
-        msg = Message()
-        db.session.add(msg)
-    
-    msg.name = data.get('name')
-    msg.phone = data.get('phone')
-    msg.msg = data.get('msg')
-    msg.status = data.get('status')
-    
-    db.session.commit()
-    return jsonify({'success': True, 'id': msg.id})
+        
+        msg.name = data.get('name')
+        msg.phone = data.get('phone')
+        msg.msg = data.get('msg')
+        msg.status = data.get('status')
+        
+        db.session.commit()
+        return jsonify({'success': True, 'id': msg.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/messages/<int:id>', methods=['DELETE'])
 def delete_message(id):
@@ -194,25 +206,29 @@ def delete_message(id):
 
 @main_bp.route('/api/portfolio', methods=['POST'])
 def save_portfolio():
-    data = request.json
-    p_id = data.get('id')
-    if p_id:
-        p = PortfolioItem.query.get(p_id)
-        if not p:
+    try:
+        data = request.json
+        p_id = data.get('id')
+        if p_id:
+            p = PortfolioItem.query.get(p_id)
+            if not p:
+                p = PortfolioItem()
+                p.id = p_id
+                db.session.add(p)
+        else:
             p = PortfolioItem()
-            p.id = p_id
             db.session.add(p)
-    else:
-        p = PortfolioItem()
-        db.session.add(p)
-    
-    p.title = data.get('title')
-    p.desc = data.get('desc')
-    p.url = data.get('url')
-    p.link = data.get('link')
-    
-    db.session.commit()
-    return jsonify({'success': True, 'id': p.id})
+        
+        p.title = data.get('title')
+        p.desc = data.get('desc')
+        p.url = data.get('url')
+        p.link = data.get('link')
+        
+        db.session.commit()
+        return jsonify({'success': True, 'id': p.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/portfolio/<int:id>', methods=['DELETE'])
 def delete_portfolio(id):
@@ -228,26 +244,30 @@ def delete_portfolio(id):
 
 @main_bp.route('/api/reviews', methods=['POST'])
 def save_review():
-    data = request.json
-    r_id = data.get('id')
-    if r_id:
-        r = PublicReview.query.get(r_id)
-        if not r:
+    try:
+        data = request.json
+        r_id = data.get('id')
+        if r_id:
+            r = PublicReview.query.get(r_id)
+            if not r:
+                r = PublicReview()
+                r.id = r_id
+                db.session.add(r)
+        else:
             r = PublicReview()
-            r.id = r_id
             db.session.add(r)
-    else:
-        r = PublicReview()
-        db.session.add(r)
-    
-    r.initials = data.get('initials')
-    r.stars = data.get('stars')
-    r.name = data.get('name')
-    r.biz = data.get('biz')
-    r.text = data.get('text')
-    
-    db.session.commit()
-    return jsonify({'success': True, 'id': r.id})
+        
+        r.initials = data.get('initials')
+        r.stars = data.get('stars')
+        r.name = data.get('name')
+        r.biz = data.get('biz')
+        r.text = data.get('text')
+        
+        db.session.commit()
+        return jsonify({'success': True, 'id': r.id})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/reviews/<int:id>', methods=['DELETE'])
 def delete_review(id):
@@ -269,19 +289,23 @@ def reset_visits():
         return jsonify({'success': True})
     except Exception as e:
         db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @main_bp.route('/api/settings', methods=['POST'])
 def save_settings():
-    data = request.json
-    for key, value in data.items():
-        setting = Setting.query.get(key)
-        if setting:
-            setting.value = str(value)
-        else:
-            setting = Setting()
-            setting.key = key
-            setting.value = str(value)
-            db.session.add(setting)
-    db.session.commit()
-    return jsonify({'success': True})
+    try:
+        data = request.json
+        for key, value in data.items():
+            setting = Setting.query.get(key)
+            if setting:
+                setting.value = str(value)
+            else:
+                setting = Setting()
+                setting.key = key
+                setting.value = str(value)
+                db.session.add(setting)
+        db.session.commit()
+        return jsonify({'success': True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)}), 500
