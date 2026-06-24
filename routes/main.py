@@ -22,27 +22,32 @@ def index():
 
 @main_bp.route('/api/init', methods=['GET'])
 def get_init_data():
-    clients = Client.query.all()
-    projects = Project.query.all()
-    messages = Message.query.all()
-    portfolio = PortfolioItem.query.all()
-    reviews = PublicReview.query.all()
-    settings = Setting.query.all()
-    
-    settings_dict = {s.key: s.value for s in settings}
-    
-    # Visit Stats
-    stats = get_stats()
-    
-    return jsonify({
-        'clients': [{ 'id': c.id, 'name': c.name, 'biz': c.biz, 'phone': c.phone, 'service': c.service, 'status': c.status, 'date': c.date } for c in clients],
-        'projects': [{ 'id': p.id, 'client': p.client, 'type': p.type, 'start': p.start, 'end': p.end, 'status': p.status, 'progress': p.progress } for p in projects],
-        'messages': [{ 'id': m.id, 'name': m.name, 'phone': m.phone, 'msg': m.msg, 'status': m.status } for m in messages],
-        'portfolio': [{ 'id': p.id, 'title': p.title, 'desc': p.desc, 'url': p.url, 'link': p.link } for p in portfolio],
-        'reviews': [{ 'id': r.id, 'initials': r.initials, 'stars': r.stars, 'name': r.name, 'biz': r.biz, 'text': r.text } for r in reviews],
-        'settings': settings_dict,
-        'stats': stats
-    })
+    try:
+        clients = Client.query.all()
+        projects = Project.query.all()
+        messages = Message.query.all()
+        portfolio = PortfolioItem.query.all()
+        reviews = PublicReview.query.all()
+        settings = Setting.query.all()
+        
+        settings_dict = {s.key: s.value for s in settings}
+        
+        # Visit Stats
+        stats = get_stats()
+        
+        return jsonify({
+            'success': True,
+            'clients': [{ 'id': c.id, 'name': c.name, 'biz': c.biz, 'phone': c.phone, 'service': c.service, 'status': c.status, 'date': c.date } for c in clients],
+            'projects': [{ 'id': p.id, 'client': p.client, 'type': p.type, 'start': p.start, 'end': p.end, 'status': p.status, 'progress': p.progress } for p in projects],
+            'messages': [{ 'id': m.id, 'name': m.name, 'phone': m.phone, 'msg': m.msg, 'status': m.status } for m in messages],
+            'portfolio': [{ 'id': p.id, 'title': p.title, 'desc': p.desc, 'url': p.url, 'link': p.link } for p in portfolio],
+            'reviews': [{ 'id': r.id, 'initials': r.initials, 'stars': r.stars, 'name': r.name, 'biz': r.biz, 'text': r.text } for r in reviews],
+            'settings': settings_dict,
+            'stats': stats
+        })
+    except Exception as e:
+        print(f"API Init error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 def get_stats():
     try:
