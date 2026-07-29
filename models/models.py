@@ -49,4 +49,4 @@ class Visit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ip = db.Column(db.String(60))
     user_agent = db.Column(db.Text)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow, index=True)

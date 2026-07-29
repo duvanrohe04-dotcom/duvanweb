@@ -1,9 +1,23 @@
 import os
+
 port = os.getenv('PORT', '5001')
 bind = f'0.0.0.0:{port}'
-workers = 2
-threads = 2
-timeout = 120
+
+# Worker configuration
+workers = int(os.getenv('GUNICORN_WORKERS', '2'))
+threads = int(os.getenv('GUNICORN_THREADS', '4'))
+worker_class = 'gthread'
+
+# Timeouts & Keepalive
+timeout = 30
+graceful_timeout = 10
+keepalive = 5
+
+# Memory leak prevention & auto-recycle workers
+max_requests = 1000
+max_requests_jitter = 50
+
+# Logging
 accesslog = '-'
 errorlog = '-'
-loglevel = 'info'
+loglevel = os.getenv('LOG_LEVEL', 'info')

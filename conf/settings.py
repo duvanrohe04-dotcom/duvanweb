@@ -37,12 +37,18 @@ class Config:
     if _db_url and _db_url.startswith("postgresql://") and "+" not in _db_url:
         _db_url = _db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
         
-    SQLALCHEMY_DATABASE_URI = _db_url or 'sqlite:///site.db'
+    _db_uri = _db_url or 'sqlite:///site.db'
+    SQLALCHEMY_DATABASE_URI = _db_uri
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_ENGINE_OPTIONS = {
+    
+    _engine_options = {
         "pool_pre_ping": True,
         "pool_recycle": 300,
     }
+    if _db_uri.startswith("sqlite"):
+        _engine_options["connect_args"] = {"timeout": 30}
+    
+    SQLALCHEMY_ENGINE_OPTIONS = _engine_options
 
 class DevelopmentConfig(Config):
     DEBUG = True

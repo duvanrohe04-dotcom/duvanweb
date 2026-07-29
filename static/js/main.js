@@ -284,41 +284,55 @@ function toggleFaq(btn){
 // ══════════════════════════════════════
 function showLogin(){
   document.getElementById('login-screen').classList.add('active');
+  document.getElementById('public-page').style.display='none';
+  document.getElementById('navbar').style.display='none';
 }
 function hideLogin(){
   document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('public-page').style.display='block';
+  document.getElementById('navbar').style.display='flex';
   document.getElementById('loginErr').style.display='none';
 }
-function doLogin(){
+async function doLogin(){
   const u=document.getElementById('loginUser').value.trim();
   const p=document.getElementById('loginPass').value.trim();
-  const adminPass = appData.settings.dr_admin_pass || 'DR2026admin';
-  if(u==='duvan'&&p===adminPass){
+  if(!u || !p){
+    const errEl = document.getElementById('loginErr');
+    errEl.textContent = 'Por favor ingresa usuario y contraseña.';
+    errEl.style.display='block';
+    return;
+  }
+  
+  const res = await api('/api/login', 'POST', { user: u, password: p });
+  if(res && res.success){
+    document.getElementById('loginErr').style.display='none';
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('admin-panel').classList.add('active');
     document.getElementById('public-page').style.display='none';
     document.getElementById('navbar').style.display='none';
+    await refreshData();
     initAdmin();
+    showNotif('Sesión iniciada correctamente');
   } else {
-    document.getElementById('loginErr').style.display='block';
+    const errEl = document.getElementById('loginErr');
+    errEl.textContent = (res && res.error) || 'Usuario o contraseña incorrectos.';
+    errEl.style.display='block';
   }
-}
-function showLogin(){
-  document.getElementById('login-screen').classList.add('active');
-  document.getElementById('public-page').style.display='none';
-  document.getElementById('navbar').style.display='none';
 }
 document.addEventListener('DOMContentLoaded',()=>{
   const lp=document.getElementById('loginPass');
   if(lp)lp.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 });
-function doLogout(){
+async function doLogout(){
+  await api('/api/logout', 'POST');
   document.getElementById('admin-panel').classList.remove('active');
   document.getElementById('public-page').style.display='block';
   document.getElementById('navbar').style.display='flex';
+  await refreshData();
   applyWhatsAppPhone();
   applySocialAndFooter();
   renderPublicTestimonials();
+  showNotif('Sesión cerrada');
 }
 
 // ══════════════════════════════════════
@@ -1003,6 +1017,12 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   
   // INITIAL DATA FETCH
   await refreshData();
+  if (appData && appData.authenticated) {
+    document.getElementById('admin-panel').classList.add('active');
+    document.getElementById('public-page').style.display='none';
+    document.getElementById('navbar').style.display='none';
+    initAdmin();
+  }
   
   initServiceCardFlip();
   renderPublicTestimonials();

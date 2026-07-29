@@ -62,6 +62,14 @@ def create_app():
 
     app.register_blueprint(main_bp)
 
+    @app.after_request
+    def set_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        return response
+
     @app.route('/favicon.ico')
     def favicon():
         return '', 204
