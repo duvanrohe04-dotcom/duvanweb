@@ -934,21 +934,23 @@ async function submitPublicReview(){
     text: text
   };
 
-  await api('/api/reviews', 'POST', newReview);
-  await refreshData();
-
-  msgEl.textContent = '¡Gracias! Tu reseña ha sido enviada con éxito.';
-  msgEl.style.color = 'var(--success)';
-  msgEl.style.display = 'block';
-
-  document.getElementById('pub-rv-name').value = '';
-  document.getElementById('pub-rv-biz').value = '';
-  document.getElementById('pub-rv-text').value = '';
-
-  renderPublicTestimonials();
+  const res = await api('/api/reviews', 'POST', newReview);
+  if (res && res.success) {
+    await refreshData();
+    msgEl.textContent = '¡Gracias! Tu reseña ha sido enviada con éxito.';
+    msgEl.style.color = 'var(--success)';
+    msgEl.style.display = 'block';
+    document.getElementById('pub-rv-name').value = '';
+    document.getElementById('pub-rv-biz').value = '';
+    document.getElementById('pub-rv-text').value = '';
+    renderPublicTestimonials();
+  } else {
+    msgEl.textContent = 'Error al enviar la reseña. Intenta de nuevo.';
+    msgEl.style.color = 'var(--danger)';
+    msgEl.style.display = 'block';
+  }
 }
 
-// SETTINGS
 function toggleSection(id){
   document.getElementById(id).classList.toggle('on');
 }
