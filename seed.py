@@ -6,7 +6,7 @@ from extensions import db
 from models.models import Setting, PublicReview
 
 DEFAULT_ADMIN_PASSWORD = 'admin123'
-RESET_MARKER = 'admin_creds_reset_v1'
+RESET_MARKER = 'admin_creds_reset_v2'
 
 DEFAULT_SETTINGS = {
     'dr_wa': '3107480575',

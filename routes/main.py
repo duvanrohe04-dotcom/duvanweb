@@ -34,6 +34,8 @@ def _rate_limited(bucket, ip, limit, window):
         q = _attempts[key]
         while q and now - q[0] > window:
             q.popleft()
+        if not q:
+            _attempts.pop(key, None)  # evita que el dict crezca con cada IP vista
         return len(q) >= limit
 
 

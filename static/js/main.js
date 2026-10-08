@@ -24,9 +24,12 @@ async function api(url, method = 'GET', body = null) {
     const res = await fetch(url, options);
     
     if (!res.ok) {
-      const errorText = await res.text().catch(() => 'No error detail');
-      console.error(`Server Error (${res.status}):`, errorText);
-      // Solo mostramos notificación si no es el inicio silencioso o si es un error grave
+      // Si el servidor mandó un mensaje JSON (login incorrecto, límite de intentos...), mostrarlo tal cual.
+      const body = await res.json().catch(() => null);
+      if (body && body.error) {
+        if (url !== '/api/login') showNotif(body.error, 'error');
+        return { success: false, error: body.error, status: res.status };
+      }
       throw new Error(`Servidor respondió con error ${res.status}`);
     }
     
@@ -82,7 +85,8 @@ function showNotif(msg, type = 'success') {
 // ══════════════════════════════════════
 (function(){
   const canvas = document.getElementById('particles-canvas');
-  if(!canvas) return;
+  // Si el CDN de three.js falla, no romper el resto del script (login, panel, etc.)
+  if(!canvas || typeof THREE === 'undefined') return;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -386,10 +390,19 @@ function renderPublicTestimonials(){
   }).join('');
 }
 
+const DEFAULT_WA_TEXT = 'Hola Duvan, quiero una página web para mi negocio';
+function openWA(text){
+  const phone=((appData.settings && appData.settings.dr_wa) || '3107480575').replace(/\D/g,'');
+  window.open('https://wa.me/57'+phone+'?text='+encodeURIComponent(text||'Hola Duvan, quiero cotizar una página web para mi negocio'),'_blank','noopener');
+}
+
 function applyWhatsAppPhone(){
   const phone=(appData.settings.dr_wa || '3107480575').replace(/\D/g,'');
+  // Conserva el mensaje por defecto de cada enlace (planes, hero...); si no tiene, usa el general.
   document.querySelectorAll('a[href*="wa.me"]').forEach(a=>{
-    a.href='https://wa.me/57'+phone;
+    let text = DEFAULT_WA_TEXT;
+    try { text = new URL(a.href).searchParams.get('text') || DEFAULT_WA_TEXT; } catch(_) {}
+    a.href='https://wa.me/57'+phone+'?text='+encodeURIComponent(text);
   });
   const fp=document.getElementById('footer-phone-display');
   if(fp)fp.textContent=phone.length>=10?phone.replace(/(\d{3})(\d{3})(\d+)/,'$1 $2 $3'):phone;

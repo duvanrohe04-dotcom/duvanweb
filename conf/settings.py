@@ -47,6 +47,8 @@ class Config:
     SECRET_KEY = _secret_key()
     FLASK_ENV = os.getenv('FLASK_ENV', 'production')
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
+    SITE_NAME = os.getenv('SITE_NAME', 'Duvan Rodriguez')
+    SITE_URL = os.getenv('SITE_URL', 'https://duvanweb.com')
 
     DATABASE_FILE = _db_path()
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_FILE.replace('\\', '/')
