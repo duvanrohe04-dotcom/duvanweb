@@ -561,29 +561,54 @@ function renderVisitors(){
   document.getElementById('vis-total').textContent = stats.total_visits;
   document.getElementById('vis-today').textContent = stats.today_visits;
   
-  const vM = document.getElementById('vis-mobile');
-  const vD = document.getElementById('vis-desktop');
-  if(vM) vM.textContent = stats.device_stats.mobile;
-  if(vD) vD.textContent = stats.device_stats.desktop;
+  const m = stats.device_stats.mobile, d = stats.device_stats.desktop, sum = m + d;
+  const setText = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
+  setText('vis-mobile', m);
+  setText('vis-desktop', d);
+  setText('vis-mobile-pct', sum ? Math.round(m / sum * 100) + '%' : '0%');
+  setText('vis-desktop-pct', sum ? Math.round(d / sum * 100) + '%' : '0%');
 
   const tbody = document.getElementById('vis-recent-tbody');
   if(tbody){
     tbody.innerHTML = (stats.recent_visits || []).map(v => {
-      let device = 'Computadora';
-      const ua = (v.ua || '').toLowerCase();
-      if(ua.includes('iphone')) device = 'iPhone';
-      else if(ua.includes('android')) device = 'Android';
-      else if(ua.includes('mobile')) device = 'Móvil';
-      
-      const ipDisplay = v.ip === '127.0.0.1' ? 'Localhost (Tú)' : v.ip;
-
+      const info = parseUserAgent(v.ua);
+      const ip = (v.ip === '127.0.0.1' || v.ip === '::1') ? 'Tú (local)' : v.ip;
       return `<tr>
-        <td style="color:var(--accent-cyan); font-family:monospace;">${esc(ipDisplay)}</td>
-        <td style="color:var(--text-secondary); font-size:0.75rem;">${device} — ${esc((v.ua||'').split(' ').slice(0,3).join(' '))}...</td>
         <td style="font-weight:600;">${esc(v.time)}</td>
+        <td><i class="fas ${info.icon}" style="color:var(--accent-cyan);width:20px;"></i> ${esc(info.device)}</td>
+        <td style="color:var(--text-secondary);">${esc(info.browser)}</td>
+        <td style="color:var(--text-secondary);font-family:monospace;font-size:.8rem;">${esc(ip)}</td>
       </tr>`;
-    }).join('') || '<tr><td colspan="3" style="text-align:center;padding:20px;">No hay registros recientes</td></tr>';
+    }).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-secondary);">Aún no hay visitas registradas</td></tr>';
   }
+}
+
+// Convierte el user-agent técnico en algo legible: dispositivo + navegador.
+function parseUserAgent(raw){
+  const ua = String(raw || '');
+  const l = ua.toLowerCase();
+  if(!ua || /bot|crawl|spider|slurp|facebookexternalhit|preview|monitor|curl|python|wget/.test(l)){
+    return { device: 'Robot / buscador', browser: /googlebot/.test(l) ? 'Google' : /bing/.test(l) ? 'Bing' : 'Automático', icon: 'fa-robot' };
+  }
+  let device = 'Computador', icon = 'fa-desktop';
+  if(/iphone/.test(l))        { device = 'iPhone'; icon = 'fa-mobile-alt'; }
+  else if(/ipad/.test(l))     { device = 'iPad'; icon = 'fa-tablet-alt'; }
+  else if(/android/.test(l))  { device = /mobile/.test(l) ? 'Celular Android' : 'Tablet Android'; icon = /mobile/.test(l) ? 'fa-mobile-alt' : 'fa-tablet-alt'; }
+  else if(/windows/.test(l))  device = 'Windows';
+  else if(/mac os|macintosh/.test(l)) device = 'Mac';
+  else if(/linux|cros/.test(l)) device = 'Linux';
+  let browser = 'Otro';
+  if(/instagram/.test(l)) browser = 'Instagram';
+  else if(/fban|fbav|facebook/.test(l)) browser = 'Facebook';
+  else if(/tiktok|musical_ly/.test(l)) browser = 'TikTok';
+  else if(/whatsapp/.test(l)) browser = 'WhatsApp';
+  else if(/edg\//.test(l)) browser = 'Edge';
+  else if(/opr\/|opera/.test(l)) browser = 'Opera';
+  else if(/samsungbrowser/.test(l)) browser = 'Samsung Internet';
+  else if(/firefox|fxios/.test(l)) browser = 'Firefox';
+  else if(/chrome|crios/.test(l)) browser = 'Chrome';
+  else if(/safari/.test(l)) browser = 'Safari';
+  return { device, browser, icon };
 }
 
 async function resetVisits(){

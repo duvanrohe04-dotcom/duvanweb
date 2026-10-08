@@ -16,6 +16,7 @@ main_bp = Blueprint('main', __name__)
 _stats_cache = {'timestamp': 0, 'data': None}
 
 ADMIN_USER = 'admin'
+_BOT_MARKERS = ('bot', 'crawl', 'spider', 'slurp', 'facebookexternalhit', 'preview', 'monitor', 'curl', 'python', 'wget')
 ALLOWED_SETTINGS = {
     'dr_wa', 'dr_tagline', 'dr_footer_1', 'dr_footer_2',
     'dr_social_ig', 'dr_social_tt', 'dr_income', 'dr_admin_pass',
@@ -248,6 +249,8 @@ def get_stats():
         desktop = 0
         for v in all_visits:
             ua = (v.user_agent or '').lower()
+            if not ua or any(b in ua for b in _BOT_MARKERS):
+                continue  # robots no cuentan como celular ni computador
             if 'mobile' in ua or 'android' in ua or 'iphone' in ua:
                 mobile += 1
             else:
