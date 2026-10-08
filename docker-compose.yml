@@ -1,32 +1,16 @@
-version: '3.8'
-
 services:
   web:
     build: .
     container_name: duvan_web
     expose:
       - "${PORT:-5001}"
-    ports:
-      - "${PORT:-5001}:${PORT:-5001}"
-    env_file:
-      - .env
-    networks:
-      - coolify
-    restart: unless-stopped
-    depends_on:
-      - postgres-db-v2
-
-  postgres-db-v2:
-    image: postgres:16-alpine
-    container_name: postgres-db-v2
+    environment:
+      - DATABASE_PATH=/data/duvan_web.db
     env_file:
       - .env
     volumes:
-      - /data/postgres/prod_data_v2:/var/lib/postgresql/data
-    networks:
-      - coolify
+      - duvan_data:/data
     restart: unless-stopped
 
-networks:
-  coolify:
-    external: true
+volumes:
+  duvan_data:

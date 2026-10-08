@@ -1,64 +1,32 @@
 import os
 from flask import Flask, send_from_directory
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 
 load_dotenv()
 
 from conf.settings import get_config
-from routes.main import main_bp
-from extensions import db, migrate
+from extensions import db
 
-def create_app():
+
+def create_app(config_object=None):
     app = Flask(__name__)
-    config = get_config()
-    app.config.from_object(config)
-    
-    # Ensure instance folder exists
+    app.config.from_object(config_object or get_config())
+
+    # Detrás de Traefik/Coolify: confiar en un salto de X-Forwarded-*.
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1)
+
     os.makedirs(app.instance_path, exist_ok=True)
+    os.makedirs(os.path.dirname(app.config['DATABASE_FILE']), exist_ok=True)
 
     db.init_app(app)
-    migrate.init_app(app, db)
-    
+
+    from routes.main import main_bp
+    from seed import seed_defaults
+
     with app.app_context():
-        from models.models import Setting, PublicReview, Client, Project, Message, PortfolioItem, Visit
-        import time
-        from sqlalchemy.exc import OperationalError
-        
-        max_retries = 5
-        for i in range(max_retries):
-            try:
-                db.create_all()
-                # Seed initial data if empty
-                if not Setting.query.get('dr_wa'):
-                    db.session.add(Setting(key='dr_wa', value='3107480575'))
-                    db.session.add(Setting(key='dr_tagline', value='Tu pagina web profesional lista en solo dias'))
-                    db.session.add(Setting(key='dr_footer_1', value=''))
-                    db.session.add(Setting(key='dr_footer_2', value=''))
-                    db.session.add(Setting(key='dr_social_ig', value=''))
-                    db.session.add(Setting(key='dr_social_tt', value=''))
-                    db.session.add(Setting(key='dr_income', value='0'))
-                    db.session.commit()
-                if not Setting.query.get('dr_admin_pass'):
-                    db.session.add(Setting(key='dr_admin_pass', value='admin'))
-                    db.session.commit()
-                
-                if not PublicReview.query.first():
-                    reviews = [
-                        PublicReview(initials='MC', stars=5, name='María Camila Torres', biz='🍽️ Restaurante El Fogón — Bogotá', text='Desde que Duvan me hizo la página, mis reservas se duplicaron. Ahora recibo clientes de toda Bogotá y hasta de otras ciudades. La inversión se pagó sola en el primer mes.'),
-                        PublicReview(initials='JA', stars=5, name='Juan Andrés Mejía', biz='✂️ Barbería Style — Medellín', text='Mi peluquería ahora aparece en Google cuando la gente busca cortes de cabello cerca. Antes dependía solo del voz a voz. Duvan hizo un trabajo muy profesional y rápido.'),
-                        PublicReview(initials='LP', stars=5, name='Laura Patricia Gómez', biz='👗 Boutique LPG — Cali', text='Tengo mi tienda en línea funcionando perfectamente. Vendo a todo el país sin salir de mi casa. El panel es fácil de usar y Duvan siempre responde cuando lo necesito.')
-                    ]
-                    db.session.bulk_save_objects(reviews)
-                    db.session.commit()
-                break
-            except OperationalError as e:
-                db.session.rollback()
-                print(f"Database not ready yet, retrying in 3 seconds... ({i+1}/{max_retries})")
-                time.sleep(3)
-            except Exception as e:
-                print(f"DB Init info (can be ignored if running multiple workers): {e}")
-                db.session.rollback()
-                break
+        from models import models  # noqa: F401  (registra las tablas)
+        seed_defaults()
 
     app.register_blueprint(main_bp)
 
@@ -66,9 +34,12 @@ def create_app():
     def set_security_headers(response):
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'SAMEORIGIN'
-        response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         return response
+
+    @app.route('/health')
+    def health():
+        return {'status': 'ok'}
 
     @app.route('/favicon.ico')
     def favicon():

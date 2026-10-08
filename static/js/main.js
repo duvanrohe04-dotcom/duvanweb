@@ -10,6 +10,10 @@ let appData = {
   settings: {}
 };
 
+const esc = s => String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+// Solo permite URLs http(s) o rutas relativas (evita javascript: en href/src)
+const safeUrl = u => /^(https?:\/\/|\/)/i.test(String(u || '').trim()) ? esc(String(u).trim()) : '';
+
 async function api(url, method = 'GET', body = null) {
   try {
     const options = {
@@ -528,8 +532,8 @@ function renderDashboard(){
   el.innerHTML=projects.slice(-4).reverse().map(p=>`
     <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.05);">
       <div>
-        <div style="font-weight:600;color:var(--text-primary);">${p.client}</div>
-        <div style="color:var(--text-secondary);font-size:.85rem;">${p.type} — ${p.status}</div>
+        <div style="font-weight:600;color:var(--text-primary);">${esc(p.client)}</div>
+        <div style="color:var(--text-secondary);font-size:.85rem;">${esc(p.type)} — ${esc(p.status)}</div>
       </div>
       <div style="width:120px;">
         <div style="color:var(--accent-cyan);font-size:.8rem;margin-bottom:4px;text-align:right;">${p.progress}%</div>
@@ -561,9 +565,9 @@ function renderVisitors(){
       const ipDisplay = v.ip === '127.0.0.1' ? 'Localhost (Tú)' : v.ip;
 
       return `<tr>
-        <td style="color:var(--accent-cyan); font-family:monospace;">${ipDisplay}</td>
-        <td style="color:var(--text-secondary); font-size:0.75rem;">${device} — ${v.ua.split(' ').slice(0,3).join(' ')}...</td>
-        <td style="font-weight:600;">${v.time}</td>
+        <td style="color:var(--accent-cyan); font-family:monospace;">${esc(ipDisplay)}</td>
+        <td style="color:var(--text-secondary); font-size:0.75rem;">${device} — ${esc((v.ua||'').split(' ').slice(0,3).join(' '))}...</td>
+        <td style="font-weight:600;">${esc(v.time)}</td>
       </tr>`;
     }).join('') || '<tr><td colspan="3" style="text-align:center;padding:20px;">No hay registros recientes</td></tr>';
   }
@@ -603,12 +607,12 @@ function renderClients(){
   });
   document.getElementById('clients-tbody').innerHTML=filtered.map(c=>`
     <tr>
-      <td style="font-weight:600;">${c.name}</td>
-      <td style="color:var(--text-secondary);">${c.biz}</td>
-      <td><a href="https://wa.me/57${c.phone}" target="_blank" style="color:var(--success);">${c.phone}</a></td>
-      <td style="color:var(--text-secondary);font-size:.85rem;">${c.service}</td>
-      <td><span class="badge ${c.status==='Entregado'?'badge-done':c.status==='En proceso'?'badge-process':'badge-pending'}">${c.status}</span></td>
-      <td style="color:var(--text-secondary);">${c.date}</td>
+      <td style="font-weight:600;">${esc(c.name)}</td>
+      <td style="color:var(--text-secondary);">${esc(c.biz)}</td>
+      <td><a href="https://wa.me/57${encodeURIComponent(c.phone||'')}" target="_blank" rel="noopener" style="color:var(--success);">${esc(c.phone)}</a></td>
+      <td style="color:var(--text-secondary);font-size:.85rem;">${esc(c.service)}</td>
+      <td><span class="badge ${c.status==='Entregado'?'badge-done':c.status==='En proceso'?'badge-process':'badge-pending'}">${esc(c.status)}</span></td>
+      <td style="color:var(--text-secondary);">${esc(c.date)}</td>
       <td style="display:flex;gap:6px;">
         <button class="btn-sm" onclick="editClient(${c.id})" style="padding:6px 12px;font-size:.8rem;">Editar</button>
         <button class="btn-sm btn-danger" onclick="deleteClient(${c.id})" style="padding:6px 12px;font-size:.8rem;">Eliminar</button>
@@ -672,12 +676,12 @@ function renderProjects(){
     return`<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:20px;transition:.3s;" onmouseover="this.style.borderColor='rgba(0,207,255,.3)'" onmouseout="this.style.borderColor='var(--border)'">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
         <div>
-          <div style="font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:700;color:var(--text-primary);">${p.client}</div>
-          <div style="color:var(--text-secondary);font-size:.8rem;">${p.type}</div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:.95rem;font-weight:700;color:var(--text-primary);">${esc(p.client)}</div>
+          <div style="color:var(--text-secondary);font-size:.8rem;">${esc(p.type)}</div>
         </div>
-        <span class="badge" style="background:rgba(0,0,0,.3);color:${color};border:1px solid ${color};">${p.status}</span>
+        <span class="badge" style="background:rgba(0,0,0,.3);color:${color};border:1px solid ${color};">${esc(p.status)}</span>
       </div>
-      <div style="color:var(--text-secondary);font-size:.8rem;margin-bottom:4px;">📅 ${p.start} → ${p.end}</div>
+      <div style="color:var(--text-secondary);font-size:.8rem;margin-bottom:4px;">📅 ${esc(p.start)} → ${esc(p.end)}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;margin-top:12px;">
         <span style="color:var(--text-secondary);font-size:.8rem;">Progreso</span>
         <span style="color:${color};font-size:.85rem;font-weight:700;">${p.progress}%</span>
@@ -740,12 +744,12 @@ function renderMessages(){
   const msgs=appData.messages;
   document.getElementById('messages-tbody').innerHTML=msgs.map(m=>`
     <tr>
-      <td style="font-weight:600;">${m.name}</td>
-      <td><a href="https://wa.me/57${m.phone}" target="_blank" style="color:var(--success);">${m.phone}</a></td>
-      <td style="color:var(--text-secondary);max-width:240px;font-size:.9rem;">${m.msg}</td>
-      <td><span class="badge ${m.status==='Nuevo'?'badge-new':m.status==='Contactado'?'badge-process':'badge-done'}">${m.status}</span></td>
+      <td style="font-weight:600;">${esc(m.name)}</td>
+      <td><a href="https://wa.me/57${encodeURIComponent(m.phone||'')}" target="_blank" rel="noopener" style="color:var(--success);">${esc(m.phone)}</a></td>
+      <td style="color:var(--text-secondary);max-width:240px;font-size:.9rem;">${esc(m.msg)}</td>
+      <td><span class="badge ${m.status==='Nuevo'?'badge-new':m.status==='Contactado'?'badge-process':'badge-done'}">${esc(m.status)}</span></td>
       <td style="display:flex;gap:6px;flex-wrap:wrap;">
-        <a href="https://wa.me/57${m.phone}?text=Hola%20${encodeURIComponent(m.name)}%2C%20te%20contacto%20de%20parte%20de%20Duvan%20Rodriguez%20Diseno%20Web%20🌐" target="_blank" class="btn-sm btn-success" style="padding:6px 10px;font-size:.8rem;text-decoration:none;">WA</a>
+        <a href="https://wa.me/57${encodeURIComponent(m.phone||'')}?text=Hola%20${encodeURIComponent(m.name)}%2C%20te%20contacto%20de%20parte%20de%20Duvan%20Rodriguez%20Diseno%20Web%20🌐" target="_blank" class="btn-sm btn-success" style="padding:6px 10px;font-size:.8rem;text-decoration:none;">WA</a>
         <button class="btn-sm" onclick="changeMessageStatus(${m.id})" style="padding:6px 10px;font-size:.8rem;">Estado</button>
         <button class="btn-sm btn-danger" onclick="deleteMessage(${m.id})" style="padding:6px 10px;font-size:.8rem;">✕</button>
       </td>
@@ -829,11 +833,11 @@ function renderPortfolio(){
   const items=appData.portfolio;
   document.getElementById('portfolio-grid').innerHTML=items.map(p=>`
     <div class="portfolio-card">
-      <div class="portfolio-img">${p.url?'<img src="'+p.url+'" onerror="this.parentElement.textContent=\'🖼️ Sin imagen\'">':' 🖼️ Sin imagen'}</div>
+      <div class="portfolio-img">${p.url?'<img src="'+safeUrl(p.url)+'" onerror="this.parentElement.textContent=\'🖼️ Sin imagen\'">':' 🖼️ Sin imagen'}</div>
       <div class="portfolio-info">
-        <h4>${p.title}</h4>
-        <p>${p.desc}</p>
-        ${p.link&&p.link!='#'?'<a href="'+p.link+'" target="_blank" style="color:var(--accent-cyan);font-size:.8rem;margin-top:6px;display:block;">Ver sitio →</a>':''}
+        <h4>${esc(p.title)}</h4>
+        <p>${esc(p.desc)}</p>
+        ${safeUrl(p.link)?'<a rel="noopener" href="'+safeUrl(p.link)+'" target="_blank" style="color:var(--accent-cyan);font-size:.8rem;margin-top:6px;display:block;">Ver sitio →</a>':''}
         <div style="display:flex;gap:8px;margin-top:10px;">
           <button class="btn-sm btn-danger" onclick="deletePortfolio(${p.id})" style="padding:4px 10px;font-size:.75rem;">Eliminar</button>
         </div>
@@ -1024,8 +1028,10 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     document.getElementById('public-page').style.display='none';
     document.getElementById('navbar').style.display='none';
     initAdmin();
+  } else if (window.OPEN_ADMIN) {
+    showLogin();
   }
-  
+
   initServiceCardFlip();
   renderPublicTestimonials();
   applyWhatsAppPhone();
@@ -1073,5 +1079,3 @@ function startCounter(el){
   }, 30);
 }
 
-// KEYBOARD SECRET (Ctrl+Shift+A)
-document.addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.key==='A'){showLogin();}});

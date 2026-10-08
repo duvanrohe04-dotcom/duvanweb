@@ -26,7 +26,8 @@
 
 {% block content %}{% endblock %}
 
-<script src="{{ url_for('static', filename='js/main.js') }}?v=20260819_02"></script>
+{% if open_admin %}<script>window.OPEN_ADMIN = true;</script>{% endif %}
+<script src="{{ url_for('static', filename='js/main.js') }}?v=20260819_03"></script>
 <script>
 // Auto-recuperación ante archivos estáticos fallidos o corruptos en navegador
 window.addEventListener('error', function(e) {

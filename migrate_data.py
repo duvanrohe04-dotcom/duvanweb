@@ -1,78 +1,50 @@
+"""Migración única de datos: PostgreSQL (Coolify, antiguo) -> SQLite.
+
+Uso (requiere `pip install psycopg2-binary` SOLO para correr este script):
+
+    python migrate_data.py --pg-url postgresql+psycopg2://USER:PASS@HOST:5432/DB [--sqlite /ruta/duvan_web.db]
+
+Reemplaza el contenido de las tablas en el SQLite destino.
+"""
+import argparse
 import os
-import sqlite3
-from sqlalchemy import create_engine, text
-from app import create_app
-from extensions import db
-from models.models import Client, Project, Message, PortfolioItem, PublicReview, Setting, Visit
 
-def migrate_data():
-    # Setup
+from sqlalchemy import create_engine, text, inspect
+
+TABLES = ['client', 'project', 'message', 'portfolio_item', 'public_review', 'setting', 'visit']
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--pg-url', required=True)
+    ap.add_argument('--sqlite', default=None, help='Ruta destino (por defecto DATABASE_PATH o instance/duvan_web.db)')
+    args = ap.parse_args()
+
+    if args.sqlite:
+        os.environ['DATABASE_PATH'] = args.sqlite
+
+    from app import create_app
     app = create_app()
-    
-    # Paths
-    sqlite_path = os.path.join(app.instance_path, 'duvan_web.db')
-    if not os.path.exists(sqlite_path):
-        print(f"No se encontró la base de datos SQLite en: {sqlite_path}")
-        return
+    dest = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
+    src = create_engine(args.pg_url)
+    src_tables = set(inspect(src).get_table_names())
 
-    with app.app_context():
-        # Database URL from app config (Postgres)
-        pg_url = app.config.get('SQLALCHEMY_DATABASE_URI')
-        if not pg_url or 'postgresql' not in pg_url:
-            print("DATABASE_URL no está configurada para PostgreSQL en la configuración de la app.")
-            return
-
-        print(f"Migrando datos desde {sqlite_path} hacia PostgreSQL...")
-
-        # Asegurarse de que las tablas existen en Postgres
-        db.create_all()
-        
-        # Conectar a SQLite
-        sl_conn = sqlite3.connect(sqlite_path)
-        sl_cursor = sl_conn.cursor()
-
-        # Modelos a migrar
-        models = [Client, Project, Message, PortfolioItem, PublicReview, Setting, Visit]
-
-        for model in models:
-            table_name = model.__tablename__
-            print(f"Migrando tabla: {table_name}...")
-            
-            # Obtener datos de SQLite
-            sl_cursor.execute(f"SELECT * FROM {table_name}")
-            rows = sl_cursor.fetchall()
-            
-            if not rows:
-                print(f"  Tabla {table_name} vacía. Saltando.")
+    with src.connect() as s, dest.begin() as d:
+        for table in TABLES:
+            if table not in src_tables:
+                print(f'- {table}: no existe en Postgres, se omite')
                 continue
+            rows = s.execute(text(f'SELECT * FROM {table}')).mappings().all()
+            d.execute(text(f'DELETE FROM {table}'))
+            if rows:
+                cols = list(rows[0].keys())
+                d.execute(
+                    text(f"INSERT INTO {table} ({', '.join(cols)}) VALUES ({', '.join(':' + c for c in cols)})"),
+                    [dict(r) for r in rows],
+                )
+            print(f'- {table}: {len(rows)} filas')
+    print('Listo ->', app.config['DATABASE_FILE'])
 
-            # Obtener nombres de columnas
-            columns = [column[0] for column in sl_cursor.description]
-            
-            # Limpiar tabla en Postgres antes de insertar para evitar duplicados
-            db.session.execute(text(f"TRUNCATE TABLE {table_name} RESTART IDENTITY CASCADE"))
-            
-            # Insertar en Postgres
-            placeholders = ", ".join([":" + col for col in columns])
-            insert_query = text(f"INSERT INTO {table_name} ({', '.join(columns)}) VALUES ({placeholders})")
-            
-            count = 0
-            for row in rows:
-                data = dict(zip(columns, row))
-                try:
-                    db.session.execute(insert_query, data)
-                    count += 1
-                except Exception as e:
-                    # Usar repr() para evitar errores de codificación al imprimir en consola Windows
-                    print(f"  Error insertando fila en {table_name}: {repr(e)}")
-                    db.session.rollback()
-            
-            db.session.commit()
-
-            print(f"  Migradas {count} filas a {table_name}.")
-
-        sl_conn.close()
-        print("Migración completada exitosamente.")
 
 if __name__ == '__main__':
-    migrate_data()
+    main()

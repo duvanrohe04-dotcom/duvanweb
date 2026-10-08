@@ -1,5 +1,5 @@
 /* Service worker: Limpieza total de caché y prevención de respuestas vacías */
-const CACHE = 'dr-web-v10.0';
+const CACHE = 'dr-web-v10.1';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -27,8 +27,11 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  /* JS, CSS y API: red siempre primero */
-  if (url.pathname.startsWith('/static/') || url.pathname.startsWith('/api/')) {
+  /* La API nunca se cachea (contiene datos privados del panel) */
+  if (url.pathname.startsWith('/api/')) return;
+
+  /* JS y CSS: red siempre primero */
+  if (url.pathname.startsWith('/static/')) {
     e.respondWith(
       fetch(request)
         .then((response) => {

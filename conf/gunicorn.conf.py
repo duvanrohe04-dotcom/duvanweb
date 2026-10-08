@@ -27,3 +27,6 @@ limit_request_line = 8190
 accesslog = '-'
 errorlog = '-'
 loglevel = os.getenv('LOG_LEVEL', 'info')
+
+# Cargar la app una sola vez (seed de BD sin carreras entre workers)
+preload_app = True

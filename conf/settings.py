@@ -1,4 +1,3 @@
-from flask import blueprints
 import os
 import secrets
 import warnings
@@ -6,55 +5,70 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def _ensure(var_name, default_factory):
-    val = os.getenv(var_name)
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+
+def _secret_key():
+    """SECRET_KEY de entorno; si falta, se genera UNA vez y se guarda en disco.
+
+    Con varios workers de gunicorn una clave aleatoria por proceso invalidaba
+    las sesiones del admin de forma intermitente.
+    """
+    val = os.getenv("SECRET_KEY")
     if val:
         return val
-    generated = default_factory()
-    warnings.warn(f"{var_name} no configurado. Se generó uno automáticamente. Defínelo en Coolify para producción.")
-    return generated
+    key_file = os.path.join(os.path.dirname(_db_path()), '.secret_key')
+    try:
+        os.makedirs(os.path.dirname(key_file), exist_ok=True)
+        if os.path.exists(key_file):
+            with open(key_file, 'r', encoding='utf-8') as fh:
+                stored = fh.read().strip()
+            if stored:
+                return stored
+        generated = secrets.token_hex(32)
+        with open(key_file, 'w', encoding='utf-8') as fh:
+            fh.write(generated)
+        warnings.warn("SECRET_KEY no configurado. Se generó uno y se guardó junto a la base de datos.")
+        return generated
+    except OSError:
+        warnings.warn("SECRET_KEY no configurado y no se pudo persistir. Defínelo en Coolify.")
+        return secrets.token_hex(32)
+
+
+def _db_path():
+    """Ruta absoluta del archivo SQLite (DATABASE_PATH o instance/duvan_web.db)."""
+    path = os.getenv('DATABASE_PATH') or os.path.join(BASE_DIR, 'instance', 'duvan_web.db')
+    if not os.path.isabs(path):
+        path = os.path.join(BASE_DIR, path)
+    return path
+
 
 class Config:
-    SECRET_KEY = _ensure("SECRET_KEY", lambda: secrets.token_hex(32))
+    SECRET_KEY = _secret_key()
     FLASK_ENV = os.getenv('FLASK_ENV', 'production')
     DEBUG = os.getenv('FLASK_DEBUG', '0') == '1'
-    _db_url = os.getenv('DATABASE_URL')
-    if not _db_url:
-        user = os.getenv('POSTGRES_USER')
-        password = os.getenv('POSTGRES_PASSWORD')
-        host = os.getenv('POSTGRES_HOST')
-        port = os.getenv('POSTGRES_PORT')
-        db_name = os.getenv('POSTGRES_DB')
-        
-        if all([user, password, host, port, db_name]):
-            from urllib.parse import quote_plus
-            password_encoded = quote_plus(password)
-            _db_url = f"postgresql+psycopg2://{user}:{password_encoded}@{host}:{port}/{db_name}"
-            print(_db_url, flush=True)
 
-    if _db_url and _db_url.startswith("postgres://"):
-        _db_url = _db_url.replace("postgres://", "postgresql://", 1)
-    if _db_url and _db_url.startswith("postgresql://") and "+" not in _db_url:
-        _db_url = _db_url.replace("postgresql://", "postgresql+psycopg2://", 1)
-        
-    _db_uri = _db_url or 'sqlite:///site.db'
-    SQLALCHEMY_DATABASE_URI = _db_uri
+    DATABASE_FILE = _db_path()
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + DATABASE_FILE.replace('\\', '/')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    _engine_options = {
+    SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,
-        "pool_recycle": 300,
+        "connect_args": {"timeout": 30},
     }
-    if _db_uri.startswith("sqlite"):
-        _engine_options["connect_args"] = {"timeout": 30}
-    
-    SQLALCHEMY_ENGINE_OPTIONS = _engine_options
+
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', '0') == '1'
+    MAX_CONTENT_LENGTH = 1024 * 1024
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
 
+
 class ProductionConfig(Config):
     DEBUG = False
+
 
 def get_config():
     env = os.getenv('FLASK_ENV', 'production')
